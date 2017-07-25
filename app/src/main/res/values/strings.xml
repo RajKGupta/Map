@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">GeofireTrial3</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="Unit">Unit</string>
+    <string name="DistancePreference">DistancePreference</string>
+    <string name="Setting">Setting</string>
+
+
+</resources>
