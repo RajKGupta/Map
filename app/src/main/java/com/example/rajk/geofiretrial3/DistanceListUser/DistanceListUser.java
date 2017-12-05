@@ -11,30 +11,17 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
-
-import com.example.rajk.geofiretrial3.MapsActivity;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.Settings;
 import com.example.rajk.geofiretrial3.adapter.DistanceUserAdapter;
-import com.example.rajk.geofiretrial3.model.Distance;
 import com.example.rajk.geofiretrial3.model.DistanceUser;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -45,7 +32,7 @@ public class DistanceListUser extends AppCompatActivity {
     HashMap<String,DistanceUser> hashMap;
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
     GeoFire geoFire = new GeoFire(ref);
-    private SharedPreferences sharedPreferences;//  =getSharedPreferences(Settings.Setting,MODE_PRIVATE);
+    private SharedPreferences sharedPreferences;
     float distancePref;
 
     @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)

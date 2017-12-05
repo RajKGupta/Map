@@ -1,7 +1,6 @@
 package com.example.rajk.geofiretrial3;
 
 
-import com.example.rajk.geofiretrial3.CheckInternetConnectivity.NetWatcher;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -25,7 +24,4 @@ public class GeofireTrial3 extends android.support.multidex.MultiDexApplication 
         return mInstance;
     }
 
-    public void setConnectivityListener(NetWatcher.ConnectivityReceiverListener listener) {
-        NetWatcher.connectivityReceiverListener = listener;
-    }
 }

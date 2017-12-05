@@ -20,27 +20,11 @@
     <application
         android:name=".GeofireTrial3"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <receiver android:name=".CheckInternetConnectivity.NetWatcher">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.PACKAGE_FIRST_LAUNCH" />
-                <action android:name="android.intent.action.REBOOT" />
-            </intent-filter>
-        </receiver>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -56,8 +40,19 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".Settings" />
-        <activity android:name=".DistanceListUser.DistanceListUser"></activity>
+        <activity android:name=".Settings">
+            </activity>
+        <activity android:name=".DistanceListUser.DistanceListUser" />
+
+        <activity
+            android:name=".MapsActivity2"
+            android:label="@string/title_activity_maps2">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>
