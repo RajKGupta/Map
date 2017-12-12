@@ -40,7 +40,7 @@ public class ShakeSensorService extends Service {
 
             @Override
             public void onShake(int count) {
-                if (count == 3) {
+                if (count == 2) {
                     Log.d(TAG, "Shake Count:" + count);
                     Intent intent = new Intent(getApplicationContext(), MapsActivity2.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
