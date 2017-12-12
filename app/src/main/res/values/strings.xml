@@ -5,6 +5,15 @@
     <string name="DistancePreference">DistancePreference</string>
     <string name="Setting">Setting</string>
     <string name="title_activity_maps2">Map</string>
+    <string name="panic_btn_text_off">Panic Alarm</string>
+    <string name="panic_btn_text_on">Panic Release</string>
+    <string name="panic_release">Panic Release</string>
+    <string name="sound_playing_message">Playing sound</string>
+    <string name="sound_stopped_message">Stopped sound</string>
+    <string name="title_activity_main">MainActivity</string>
 
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="action_settings">Settings</string>
 </resources>

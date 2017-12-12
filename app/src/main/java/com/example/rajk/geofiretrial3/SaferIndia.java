@@ -41,10 +41,6 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
 
     public static SharedPreference session ;
 
-
-
-
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -55,19 +51,22 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
         }
         DBREF = FirebaseDatabase.getInstance().getReference().child(AppName).getRef();
         session = new SharedPreference(getApplicationContext());
-        setOnlineStatus(session.getPhone());
-
+        String phone_num = "";
+        if (session.getPhone()!=null)
+            phone_num = session.getPhone();
+        setOnlineStatus(phone_num);
     }
 
-    public static synchronized SaferIndia getInstance() {
+    public static synchronized SaferIndia getInstance()
+    {
         return mInstance;
     }
     public static void setOnlineStatus(String userkey) {
-        if (!userkey.equals("")) {
+        if (userkey!=null || !userkey.equals("")) {
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
             final DatabaseReference myConnectionsRef = DBREF.child(userSession).child(phone).child(online).getRef();
 
-// stores the timestamp of my last disconnect (the last time I was seen online)
+            // stores the timestamp of my last disconnect (the last time I was seen online)
             final DatabaseReference lastOnlineRef = database.getReference().child(userSession).child(phone).child(lastSeen).getRef();
 
             final DatabaseReference connectedRef = database.getReference(".info/connected");

@@ -1,8 +1,28 @@
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/map"
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.rajk.geofiretrial3.MapsActivity2" />
+    tools:context="com.example.rajk.geofiretrial3.MapsActivity2">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ToggleButton
+            android:id="@+id/panicBtn"
+            android:layout_width="@dimen/panic_button_dimen"
+            android:layout_height="@dimen/panic_button_dimen"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/circle_bg_on"
+            android:padding="@dimen/panic_button_padding"
+            android:text="@string/panic_release"
+            android:textColor="@android:color/white"
+            android:textOff="@string/panic_btn_text_off"
+            android:textOn="@string/panic_btn_text_on"
+            android:textSize="@dimen/panic_button_text_size"
+            android:textStyle="bold" />
+    </RelativeLayout>
+</fragment>

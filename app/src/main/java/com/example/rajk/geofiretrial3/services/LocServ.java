@@ -23,6 +23,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.Calendar;
 
 import static com.example.rajk.geofiretrial3.SaferIndia.AppName;
@@ -42,7 +43,8 @@ public class LocServ extends Service implements GoogleApiClient.ConnectionCallba
     private LocationRequest mLocationRequest;
     String lat, lon;
     DatabaseReference ref;
-    GeoFire geoFire ;
+    GeoFire geoFire;
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = LocationRequest.create();
@@ -60,32 +62,29 @@ public class LocServ extends Service implements GoogleApiClient.ConnectionCallba
 
             lat = String.valueOf(mLastLocation.getLatitude());
             lon = String.valueOf(mLastLocation.getLongitude());
-            }
+        }
 
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-//TODO handle case where location not available through mobile and location service.
+        //TODO handle case where location not available through mobile and location service.
     }
 
     @Override
     public void onLocationChanged(Location location) {
         lat = String.valueOf(location.getLatitude());
         lon = String.valueOf(location.getLongitude());
-              geoFire.setLocation(session.getPhone(), new GeoLocation(Double.parseDouble(String.valueOf(lat)), Double.parseDouble(String.valueOf(lon))), new GeoFire.CompletionListener() {
-                @Override
-                public void onComplete(String key, DatabaseError error) {
-                    if (error != null) {
+        geoFire.setLocation(session.getPhone(), new GeoLocation(Double.parseDouble(String.valueOf(lat)), Double.parseDouble(String.valueOf(lon))), new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+                if (error != null) {
 
-                        }
-                        else {
-                    }
+                } else {
                 }
+            }
 
-            });
-
-
+        });
     }
 
     @Override
@@ -104,8 +103,8 @@ public class LocServ extends Service implements GoogleApiClient.ConnectionCallba
     @Override
     public void onCreate() {
         super.onCreate();
-        session= new SharedPreference(getApplicationContext());
-        ref= DBREF.child(userLoction).getRef();
+        session = new SharedPreference(getApplicationContext());
+        ref = DBREF.child(userLoction).getRef();
         geoFire = new GeoFire(ref);
         buildGoogleApiClient();
         mGoogleApiClient.connect();

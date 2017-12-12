@@ -16,9 +16,10 @@ public class SharedPreference {
     private Boolean shareLocation=true;
     private Boolean panick=false;
     private Boolean alarmSound=false;
-    public SharedPreference(Context context) {
+    public SharedPreference(Context context)
+    {
         this.context = context;
-        pref = _context.getSharedPreferences(prefname, mode);
+        pref = context.getSharedPreferences(prefname, mode);
         editor = pref.edit();
     }
 
