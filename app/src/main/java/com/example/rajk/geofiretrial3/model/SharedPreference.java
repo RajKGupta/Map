@@ -3,19 +3,20 @@ package com.example.rajk.geofiretrial3.model;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.rajk.geofiretrial3.SaferIndia;
+
 public class SharedPreference {
     private Context context;
     SharedPreferences pref;
     SharedPreferences.Editor editor;
-    Context _context;
     int mode = 0;
     String prefname = "SESSION";
-    private Boolean loggedIn;
 
-    private String name,phone,blood,address,gender,age,diseases,imgurl,email;
-    private Boolean shareLocation=true;
-    private Boolean panick=false;
-    private Boolean alarmSound=false;
+    public Boolean getLoggedIn() {
+        return pref.getBoolean(SaferIndia.loggedIn, false);
+    }
+
+
     public SharedPreference(Context context)
     {
         this.context = context;
@@ -24,111 +25,103 @@ public class SharedPreference {
     }
 
     public String getName() {
-        return name;
+        return pref.getString(SaferIndia.name, "");
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getPhone() {
-        return phone;
+        return pref.getString(SaferIndia.phone, "");
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 
     public String getBlood() {
-        return blood;
+        return pref.getString(SaferIndia.blood, "");
     }
 
-    public void setBlood(String blood) {
-        this.blood = blood;
-    }
 
     public String getAddress() {
-        return address;
+        return pref.getString(SaferIndia.address, "");
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public String getGender() {
-        return gender;
+        return pref.getString(SaferIndia.gender, "");
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
 
     public String getAge() {
-        return age;
+        return pref.getString(SaferIndia.age, "");
     }
 
-    public void setAge(String age) {
-        this.age = age;
-    }
 
     public String getDiseases() {
-        return diseases;
+        return pref.getString(SaferIndia.diseases, "");
     }
 
-    public void setDiseases(String diseases) {
-        this.diseases = diseases;
-    }
 
     public String getImgurl() {
-        return imgurl;
+        return pref.getString(SaferIndia.imgurl, "");
     }
 
-    public void setImgurl(String imgurl) {
-        this.imgurl = imgurl;
-    }
 
     public String getEmail() {
-        return email;
+        return pref.getString(SaferIndia.email, "");
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public Boolean getShareLocation() {
-        return shareLocation;
+        return pref.getBoolean(SaferIndia.shareLocation, true);
     }
 
     public void setShareLocation(Boolean shareLocation) {
-        this.shareLocation = shareLocation;
+        editor.putBoolean(SaferIndia.shareLocation,shareLocation);
+        editor.commit();
+
     }
 
     public Boolean getPanick() {
-        return panick;
+        return pref.getBoolean(SaferIndia.panick,true);
+
     }
 
     public void setPanick(Boolean panick) {
-        this.panick = panick;
+        editor.putBoolean(SaferIndia.panick,panick);
+        editor.commit();
     }
 
     public Boolean getAlarmSound() {
-        return alarmSound;
+        return pref.getBoolean(SaferIndia.alarmSound,false);
     }
 
     public void setAlarmSound(Boolean alarmSound) {
-        this.alarmSound = alarmSound;
+        editor.putBoolean(SaferIndia.alarmSound,alarmSound);
+        editor.commit();
     }
 
     public void setSharedPreference(String name, String phone, String blood, String address, String gender, String age, String diseases, String imgurl, String email) {
-        this.name = name;
-        this.phone = phone;
-        this.blood = blood;
-        this.address = address;
-        this.gender = gender;
-        this.age = age;
-        this.diseases = diseases;
-        this.imgurl = imgurl;
-        this.email = email;
-        loggedIn = true;
+        editor.putString(SaferIndia.name,name);
+        editor.putString(SaferIndia.phone,phone);
+        editor.putString(SaferIndia.blood,blood);
+        editor.putString(SaferIndia.address,address);
+        editor.putString(SaferIndia.gender,gender);
+        editor.putString(SaferIndia.age,age);
+        editor.putString(SaferIndia.diseases,diseases);
+        editor.putString(SaferIndia.imgurl,imgurl);
+        editor.putString(SaferIndia.email,email);
+        editor.putBoolean(SaferIndia.alarmSound,false);
+        editor.putBoolean(SaferIndia.panick,false);
+        editor.putBoolean(SaferIndia.shareLocation,true);
+        editor.putBoolean(SaferIndia.loggedIn,true);
+        editor.commit();
     }
+
+    public String getFCMavail() {
+        return pref.getString("FCM",null);
+    }
+
+    public void setFCMavail(String panick) {
+        editor.putString("FCM",panick);
+        editor.commit();
+    }
+
 }

@@ -22,18 +22,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.Calendar;
-
-import static com.example.rajk.geofiretrial3.SaferIndia.AppName;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
-import static com.example.rajk.geofiretrial3.SaferIndia.formatterWithMonthNameAndTime;
-import static com.example.rajk.geofiretrial3.SaferIndia.getTimeStamp;
-import static com.example.rajk.geofiretrial3.SaferIndia.lastSeen;
-import static com.example.rajk.geofiretrial3.SaferIndia.myLocation;
-import static com.example.rajk.geofiretrial3.SaferIndia.phone;
-import static com.example.rajk.geofiretrial3.SaferIndia.session;
 import static com.example.rajk.geofiretrial3.SaferIndia.userLoction;
 
 public class LocServ extends Service implements GoogleApiClient.ConnectionCallbacks,
@@ -44,6 +33,7 @@ public class LocServ extends Service implements GoogleApiClient.ConnectionCallba
     String lat, lon;
     DatabaseReference ref;
     GeoFire geoFire;
+    SharedPreference session;
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
