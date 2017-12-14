@@ -7,7 +7,8 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.FCMToken;
-import static com.example.rajk.geofiretrial3.SaferIndia.session;
+import static com.example.rajk.geofiretrial3.main.LoginActivity.session;
+
 public class MyFirebaseInstanceIDService  extends FirebaseInstanceIdService {
 
     private static final String TAG = "MyFirebaseIIDService";
@@ -41,6 +42,7 @@ public class MyFirebaseInstanceIDService  extends FirebaseInstanceIdService {
      */
     private void sendRegistrationToServer(String token) {
         System.out.println(" token to send to fireb"+ token);
+
         String usrkey=session.getPhone();
 
         if(!usrkey.matches("")) {
