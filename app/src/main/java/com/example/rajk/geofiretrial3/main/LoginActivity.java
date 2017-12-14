@@ -12,6 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
@@ -51,7 +52,6 @@ public class LoginActivity extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient;
     private ProgressDialog pd;
     public static FirebaseUser currentUser;
-    String place;
     DatabaseReference user_exists;
 
     @Override
@@ -64,13 +64,13 @@ public class LoginActivity extends AppCompatActivity implements
         getSupportActionBar().hide();
 
         setContentView(R.layout.activity_login);
-        pd=new ProgressDialog(this);
-        session= new SharedPreference(this);
-        if (FirebaseInstanceId.getInstance().getToken() != null)
-        {
+        pd = new ProgressDialog(this);
+        session = new SharedPreference(this);
+        if (FirebaseInstanceId.getInstance().getToken() != null) {
             session.setFCMavail(FirebaseInstanceId.getInstance().getToken());
         }
-            findViewById(R.id.signIn).setOnClickListener(this);
+
+        findViewById(R.id.signIn).setOnClickListener(this);
 
         // [START config_signin]
         // Configure Google Sign In
@@ -96,21 +96,19 @@ public class LoginActivity extends AppCompatActivity implements
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         Intent intent = getIntent();
-        String signOut = "" ;
+        String signOut = "";
         if (intent.hasExtra("SIGN_OUT")) {
             signOut = intent.getExtras().getString("SIGN_OUT");
         }
-        if(signOut!=null&&signOut.equals("SIGN_OUT"))
-        {
+        if (signOut != null && signOut.equals("SIGN_OUT")) {
             signOut();
-           // s.clearoldusersession();
-        }
-        else
-        {
+            // s.clearoldusersession();
+        } else {
             currentUser = mAuth.getCurrentUser();
             updateUI(currentUser);
         }
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -167,12 +165,13 @@ public class LoginActivity extends AppCompatActivity implements
         pd.setTitle("Loading");
         pd.show();
     }
+
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-    private void signOut()
-    {
+
+    private void signOut() {
         // Firebase sign out
         /*mAuth.signOut();
 
@@ -191,7 +190,7 @@ public class LoginActivity extends AppCompatActivity implements
             public void onConnected(@Nullable Bundle bundle) {
 
                 FirebaseAuth.getInstance().signOut();
-                if(mGoogleApiClient.isConnected()) {
+                if (mGoogleApiClient.isConnected()) {
                     Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
@@ -212,32 +211,30 @@ public class LoginActivity extends AppCompatActivity implements
 
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
-        if (user != null)
-        {
+        if (user != null) {
             // check for existing user by shred prferences
-            if (session.getLoggedIn()==true)
-            {
-                Intent intent = new Intent(this, MainActivity.class);
+            if (session.getLoggedIn() == true) {
+                Intent intent = new Intent(this, MapsActivity2.class);
                 startActivity(intent);
                 finish();
-            }
-
-            else {
+            } else {
                 // check for existing user on reinstalling the app
-                user_exists = DBREF.child(users).child("7049837833");
+                user_exists = DBREF.child(users).child(user.getUid());
+                session.setEmail(user.getEmail());
+                session.setUID(user.getUid());
+                session.setImgurl(String.valueOf(user.getPhotoUrl()));
+
                 user_exists.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             PersonalDetails user = dataSnapshot.getValue(PersonalDetails.class);
-                            session.setSharedPreference(user.getName(),user.getPhone(),user.getBlood(),user.getAddress(),user.getGender(),user.getAge(),user.getDiseases(),user.getImgurl(),user.getEmail());
-                            setFirebaseToken();
+                            session.setSharedPreference(user.getName(), user.getPhone(), user.getBlood(), user.getAddress(), user.getGender(), user.getAge(), user.getDiseases(), user.getImgurl(), user.getEmail());
+                            setFirebaseToken(true);
 
                         } else {
-                            //TODO link the new user profile filling page and make setFirebaseToken() in that page
-                            session.setSharedPreference("Raj","7049837833","B+","Gwalior","Male","20","NA","NA","rajkuwargupta1996@gmail.com");
-                            DBREF.child(users).child(session.getPhone()).setValue(new PersonalDetails(session.getName(),session.getPhone(),session.getBlood(),session.getAddress(),session.getGender(),session.getAge(),session.getDiseases(),session.getImgurl(),session.getEmail()));
-                            setFirebaseToken();                        }
+                            setFirebaseToken(false);
+                        }
                     }
 
                     @Override
@@ -262,8 +259,8 @@ public class LoginActivity extends AppCompatActivity implements
             signIn();
         }
     }
-    private void setFirebaseToken()
-    {
+
+    private void setFirebaseToken(Boolean dataexists) {
         String myFCMToken;
         if (FirebaseInstanceId.getInstance().getToken() == null)
             myFCMToken = session.getFCMavail();
@@ -271,14 +268,21 @@ public class LoginActivity extends AppCompatActivity implements
         else
             myFCMToken = FirebaseInstanceId.getInstance().getToken();
 
-        if (myFCMToken!=null) {
-            DBREF.child(FCMToken).child(session.getPhone()).setValue(myFCMToken);
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
+        if (myFCMToken != null)
+        {
+            DBREF.child(FCMToken).child(session.getUID()).setValue(myFCMToken);
+            if (dataexists) {
 
+                Intent intent = new Intent(this, MapsActivity2.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Intent intent = new Intent(this, ProfileActivity.class);
+                startActivity(intent);
+                finish();
+            }
         } else
             Toast.makeText(LoginActivity.this, "You will need to clear the app data or reinstall the app to make it work properly", Toast.LENGTH_LONG).show();
     }
-    }
 
+}

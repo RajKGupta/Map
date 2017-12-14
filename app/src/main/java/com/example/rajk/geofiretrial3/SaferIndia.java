@@ -39,7 +39,7 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static String myLocation = "myLocation";
     public static String users = "Users";
     public static String loggedIn = "loggedIn";
-
+    public static String UID = "UID";
     public SharedPreference session ;
 
     @Override
@@ -52,23 +52,24 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
         }
         DBREF = FirebaseDatabase.getInstance().getReference().child(AppName).getRef();
         session = new SharedPreference(getApplicationContext());
-        String phone_num = "";
-        if (session.getPhone()!=null)
-            phone_num = session.getPhone();
-        setOnlineStatus(phone_num);
+        String UID = "";
+        if (session.getUID()!=null)
+            UID = session.getUID();
+        setOnlineStatus(UID);
     }
 
     public static synchronized SaferIndia getInstance()
     {
         return mInstance;
     }
-    public static void setOnlineStatus(String userkey) {
-        if (userkey!=null || !userkey.equals("")) {
+
+    public void setOnlineStatus(String userkey) {
+        if (!userkey.equals("")) {
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            final DatabaseReference myConnectionsRef = DBREF.child(userSession).child(phone).child(online).getRef();
+            final DatabaseReference myConnectionsRef = DBREF.child(userSession).child(userkey).child(online).getRef();
 
             // stores the timestamp of my last disconnect (the last time I was seen online)
-            final DatabaseReference lastOnlineRef = database.getReference().child(userSession).child(phone).child(lastSeen).getRef();
+            final DatabaseReference lastOnlineRef = database.getReference().child(userSession).child(userkey).child(lastSeen).getRef();
 
             final DatabaseReference connectedRef = database.getReference(".info/connected");
             connectedRef.addValueEventListener(new ValueEventListener() {

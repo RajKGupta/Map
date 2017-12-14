@@ -9,7 +9,7 @@ import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.FCMToken;
 import static com.example.rajk.geofiretrial3.main.LoginActivity.session;
 
-public class MyFirebaseInstanceIDService  extends FirebaseInstanceIdService {
+public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     private static final String TAG = "MyFirebaseIIDService";
 
@@ -34,18 +34,18 @@ public class MyFirebaseInstanceIDService  extends FirebaseInstanceIdService {
 
     /**
      * Persist token to third-party servers.
-     *
+     * <p>
      * Modify this method to associate the user's FCM InstanceID token with any server-side account
      * maintained by your application.
      *
      * @param token The new token.
      */
     private void sendRegistrationToServer(String token) {
-        System.out.println(" token to send to fireb"+ token);
+        System.out.println(" token to send to firebase" + token);
 
-        String usrkey=session.getPhone();
+        String usrkey = session.getUID();
 
-        if(!usrkey.matches("")) {
+        if (!usrkey.matches("")) {
             DBREF.child(FCMToken).child(usrkey).setValue(token);
         }
     }
