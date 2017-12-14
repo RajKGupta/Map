@@ -19,7 +19,6 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static SimpleDateFormat simpleDateFormatWithMonthName = new SimpleDateFormat("dd-MMM-yyyy");
     public static String AppName = "FeelSafe";
     public static String userSession = "userSession";
-    public static String user = "user";
     public static String PersonalDetails = "PersonalDetails";
     public static String FCMToken = "FCMToken";
     public static String name="name";
@@ -38,8 +37,10 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static String lastSeen="lastSeen";
     public static String userLoction="userLoction";
     public static String myLocation = "myLocation";
+    public static String users = "Users";
+    public static String loggedIn = "loggedIn";
 
-    public static SharedPreference session ;
+    public SharedPreference session ;
 
     @Override
     public void onCreate() {
