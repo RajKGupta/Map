@@ -3,33 +3,34 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/trackme"
+            android:icon="@drawable/ic_track_me"
+            android:title="Track My Location" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/location"
+            android:icon="@drawable/ic_location_on"
+            android:title="Location" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/alarm"
+            android:icon="@drawable/ic_alarm"
+            android:title="Alarm" />
+
     </group>
 
     <item android:title="Communicate">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/profile"
+                android:icon="@drawable/ic_face_black_24dp"
+                android:title="Profile" />
+            <item
+                android:id="@+id/addgaurdians"
+                android:icon="@drawable/ic_local_phone_black_24dp"
+                android:title="Add Gaurdians" />
+            <item
+                android:id="@+id/shareapp"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
         </menu>
     </item>
 
