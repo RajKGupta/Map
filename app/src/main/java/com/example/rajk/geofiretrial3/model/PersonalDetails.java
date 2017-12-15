@@ -5,11 +5,10 @@ package com.example.rajk.geofiretrial3.model;
  */
 
 public class PersonalDetails {
-    private String name,phone,blood,address,gender,age,diseases,imgurl,email;
+    private String name,phone,blood,address,gender,age,diseases,imgurl,email,id;
 
     public PersonalDetails() {
     }
-
     public String getImgurl() {
         return imgurl;
     }
@@ -26,7 +25,7 @@ public class PersonalDetails {
         this.email = email;
     }
 
-    public PersonalDetails(String name, String phone, String blood, String address, String gender, String age, String diseases, String imgurl, String email) {
+    public PersonalDetails(String name, String phone, String blood, String address, String gender, String age, String diseases, String imgurl, String email,String id) {
         this.name = name;
         this.phone = phone;
         this.blood = blood;
@@ -36,6 +35,7 @@ public class PersonalDetails {
         this.diseases = diseases;
         this.imgurl = imgurl;
         this.email = email;
+        this.id=id;
     }
 
     public String getName() {

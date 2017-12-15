@@ -1,5 +1,6 @@
 package com.example.rajk.geofiretrial3.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -8,16 +9,21 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.rajk.geofiretrial3.R;
+import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
+import com.example.rajk.geofiretrial3.step2.PickContact;
+import com.example.rajk.geofiretrial3.step2.Step2PickContact;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+private MarshmallowPermissions marshmallowPermissions;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        marshmallowPermissions =new MarshmallowPermissions(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -78,6 +84,19 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.profile) {
 
         } else if (id == R.id.addgaurdians) {
+            if(marshmallowPermissions.checkPermissionForContacts())
+                startActivity(new Intent(this,PickContact.class));
+            else
+            {
+                marshmallowPermissions.requestPermissionForContacts();
+            if (marshmallowPermissions.checkPermissionForContacts())
+                    startActivity(new Intent(this,PickContact.class));
+                else
+                {
+                    Toast.makeText(this,"You need to provide permission to access contacts.",Toast.LENGTH_SHORT).show();
+                }
+
+            }
 
         } else if (id == R.id.shareapp) {
 

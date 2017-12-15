@@ -65,27 +65,20 @@ public class MarshmallowPermissions {
     }
 
     public void requestPermissionForExternalStorage(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
             Toast.makeText(activity, "External Storage permission needed. Please allow in App Settings for additional functionality.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
-        }
     }
 
     public void requestPermissionForReadsms(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_SMS)){
             Toast.makeText(activity, "Please allow to read sms to automatically detect otp.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.READ_SMS},READSMS_REQUEST_CODE);
-        }
+
     }
 
     public void requestPermissionForRecievesms(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECEIVE_SMS)){
             Toast.makeText(activity, "Please allow to read sms to automatically detect otp.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.RECEIVE_SMS},RECVSMS_REQUEST_CODE);
-        }
+
     }
 
     public boolean checkPermissionForLocations(){
@@ -98,11 +91,9 @@ public class MarshmallowPermissions {
     }
 
     public void requestPermissionForLocations(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)){
             Toast.makeText(activity, "Please allow us to use locations.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCSERV_REQUEST_CODE);
-        }
+
     }
     public boolean checkPermissionForCoarseLocations(){
         int result = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -114,21 +105,15 @@ public class MarshmallowPermissions {
     }
 
     public void requestPermissionForCoarseLocations(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION)){
             Toast.makeText(activity, "Please allow us to use locations.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},LOCSERV_COARSE_REQUEST_CODE);
-        }
     }
 
     public void requestPermissionForCamera()
     {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)){
             Toast.makeText(activity, "Please allow to be able to take camera images.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.CAMERA},CAMERA_PERMISSION_REQUEST_CODE);
-        }
-    }
+      }
     public boolean checkPermissionForContacts(){
         int result = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
         if (result == PackageManager.PERMISSION_GRANTED){
@@ -139,11 +124,8 @@ public class MarshmallowPermissions {
     }
 
     public void requestPermissionForContacts(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_CONTACTS)){
             Toast.makeText(activity, "Allow Reading Contact List to select Guardians .", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.READ_CONTACTS},READ_CONTACTS_REQUEST_CODE);
-        }
     }
 
     public boolean checkPermissionForSendSms(){
@@ -156,12 +138,9 @@ public class MarshmallowPermissions {
     }
 
     public void requestPermissionForSendSms(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.SEND_SMS)){
             Toast.makeText(activity, "Please allow to send sms in case of emergencies.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.SEND_SMS},SENDSMS_REQUEST_CODE);
-        }
-    }
+      }
 
 
 }

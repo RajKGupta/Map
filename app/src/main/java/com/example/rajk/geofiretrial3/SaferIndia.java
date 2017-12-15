@@ -1,5 +1,8 @@
 package com.example.rajk.geofiretrial3;
 
+import android.app.Activity;
+import android.widget.Toast;
+
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
@@ -26,7 +29,7 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static String phone="phone";
     public static String panick="panick";
     public static String address="address";
-    public static String age="name";
+    public static String age="age";
     public static String diseases="diseases";
     public static String shareLocation="shareLocation";
     public static String alarmSound="alarmSound";
@@ -40,6 +43,11 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static String users = "Users";
     public static String loggedIn = "loggedIn";
     public static String UID = "UID";
+    public static String phoneVsId= "phoneVsId";
+    public static String emergencyContact="emergencyContact";
+    public static String guardianNotUser ="guardianNotUser";
+    public static String myResponsibility = "myResponsibility";
+    public static String contactList="contactList";
     public SharedPreference session ;
 
     @Override
@@ -104,6 +112,14 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     {
         String timestamp = String.valueOf(99999999999999L-Calendar.getInstance().getTimeInMillis());
         return timestamp;
+    }
+    public static void showLongToast(Activity activity,String text)
+    {
+        Toast.makeText(activity,text,Toast.LENGTH_LONG).show();
+    }
+    public static void showShortToast(Activity activity,String text)
+    {
+        Toast.makeText(activity,text,Toast.LENGTH_SHORT).show();
     }
 //Send notification to an individual
 /*

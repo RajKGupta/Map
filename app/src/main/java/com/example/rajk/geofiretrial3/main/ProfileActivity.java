@@ -1,6 +1,8 @@
 package com.example.rajk.geofiretrial3.main;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,10 +15,25 @@ import android.widget.Toast;
 
 import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
+import com.example.rajk.geofiretrial3.model.Online;
 import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
+import com.example.rajk.geofiretrial3.step2.Step2PickContact;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
+
+import java.net.ServerSocket;
+import java.util.Calendar;
 
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
+import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
+import static com.example.rajk.geofiretrial3.SaferIndia.getTimeStamp;
+import static com.example.rajk.geofiretrial3.SaferIndia.guardianNotUser;
+import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
+import static com.example.rajk.geofiretrial3.SaferIndia.phoneVsId;
+import static com.example.rajk.geofiretrial3.SaferIndia.userSession;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -61,13 +78,59 @@ public class ProfileActivity extends AppCompatActivity {
                     Toast.makeText(ProfileActivity.this, "Fill all the details", Toast.LENGTH_SHORT).show();
                 } else {
                     session.setSharedPreference(name, phone, blood, address, gender, age, diseases, session.getImgurl(), session.getEmail());
-                    DBREF.child(users).child(session.getUID()).setValue(new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail()));
-                    Intent intent = new Intent(ProfileActivity.this, MapsActivity2.class);
-                    startActivity(intent);
-                    finish();
-                }
+                    DBREF.child(users).child(session.getUID()).setValue(new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail(),session.getUID()));
+                    DBREF.child(phoneVsId).child(session.getPhone()).setValue(session.getUID());
+                    DBREF.child(userSession).child(session.getUID()).setValue(new Online(true, getTimeStamp(),session.getPhone(),session.getName(),session.getUID()));
+                    DBREF.child(guardianNotUser).child(session.getPhone()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.exists())
+                            {
+                                for (DataSnapshot ds:dataSnapshot.getChildren())
+                                {
+                                    DBREF.child(users).child(session.getUID()).child(myResponsibility).child(ds.getKey()).setValue(ds.getValue(String.class));
+                                    DBREF.child(users).child(ds.getValue(String.class)).child(emergencyContact).child(session.getPhone()).setValue(session.getUID());
+                                    goToNextActivity();
+                                }
+                            }
+                            else {
+                                goToNextActivity();
+                            }
+                        }
 
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                    }
             }
         });
     }
+    @Override
+    public void onBackPressed() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to exit?")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, int id) {
+                        ProfileActivity.super.onBackPressed();
+                    }
+
+
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+    private void goToNextActivity() {
+        Intent intent = new Intent(ProfileActivity.this, Step2PickContact.class);
+        startActivity(intent);
+        finish();
+    }
+
 }
