@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -21,8 +22,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
+import com.example.rajk.geofiretrial3.main.LoginActivity;
 import com.example.rajk.geofiretrial3.main.MainActivity;
 import com.example.rajk.geofiretrial3.model.GlobalEmployee;
+import com.example.rajk.geofiretrial3.model.SharedPreference;
+import com.example.rajk.geofiretrial3.services.LocServ;
 import com.example.rajk.geofiretrial3.services.ShakeSensorService;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -43,17 +48,31 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
+import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
+import static com.example.rajk.geofiretrial3.SaferIndia.userLoction;
+import static com.example.rajk.geofiretrial3.SaferIndia.users;
+
 public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
-    private DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("GlobalEmployee").child("Location").getRef();
+
+
+    private DatabaseReference ref = DBREF.child(userLoction).getRef();
     private GeoFire geoFire = new GeoFire(ref);
     private HashMap<String, Marker> userMarkers = new HashMap<>();
     private Location myloc;
     private GoogleMap mMap;
+    private SharedPreference session;
     Marker mCurrLocationMarker;
     private ToggleButton toggleButton;
     private MediaPlayer mediaPlayer;
+    private Boolean coarsePermission,finePermission;
+    private MarshmallowPermissions marshmallowPermissions;
+    private Intent locServiceIntent;
+    private ValueEventListener myResponsibilityListListener;
+    private ArrayList<String> myResponsibilityList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +80,18 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         FrameLayout frame = (FrameLayout) findViewById(R.id.frame);
         getLayoutInflater().inflate(R.layout.activity_maps2, frame);
 
+        locServiceIntent = new Intent(MapsActivity2.this,LocServ.class);
+
+        session = new SharedPreference(this);
         startService(new Intent(getApplicationContext(), ShakeSensorService.class));
+
+        marshmallowPermissions = new MarshmallowPermissions(this);
+        checkLocPermissions();
 
         myloc = new Location("");
         myloc.setLatitude(26.207613);
         myloc.setLongitude(78.1650822);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -100,6 +126,8 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     mediaPlayer.setLooping(true);
                     mediaPlayer.start();
                     prepareDistressAlert();
+                    startLocationService();
+
                 } else {
                     // The toggle is disabled
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -108,14 +136,98 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     Toast.makeText(getApplicationContext(), R.string.sound_stopped_message, Toast.LENGTH_SHORT).show();
                     mediaPlayer.stop();
                     mediaPlayer.reset();
+                    if(!session.getShareLocation())
+                    {
+                        stopService(locServiceIntent);
+                    }
                 }
             }
         });
     }
 
+    private void plotMyResponsibilty() {
+
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(myloc.getLatitude(), myloc.getLongitude()), 1500);
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                if(myResponsibilityList.indexOf(key)!=-1) {
+                    LatLng latLng = new LatLng(location.latitude, location.longitude);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title(key);
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    userMarkers.put(key, mCurrLocationMarker);
+                    mCurrLocationMarker.showInfoWindow();
+                }
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+                if (myResponsibilityList.indexOf(key) != -1) {
+                    Marker removeMarker = userMarkers.get(key);
+                    userMarkers.remove(key);
+                    removeMarker.remove();
+                    System.out.println(String.format("Key %s is no longer in the search area", key));
+                }
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+                if (myResponsibilityList.indexOf(key) != -1) {
+                    Marker removeMarker = userMarkers.get(key);
+                    userMarkers.remove(key);
+                    removeMarker.remove();
+                    LatLng latLng = new LatLng(location.latitude, location.longitude);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title(key);
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    userMarkers.put(key, mCurrLocationMarker);
+                    mCurrLocationMarker.showInfoWindow();
+                    System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
+                }
+            }
+            @Override
+            public void onGeoQueryReady() {
+                System.out.println("All initial data has been loaded and events have been fired!");
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+                Toast.makeText(MapsActivity2.this, "There was an error with this query: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        myResponsibilityListListener = DBREF.child(users).child(session.getUID()).child(myResponsibility).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists())
+                {
+                    myResponsibilityList.clear();
+                    for(DataSnapshot ds:dataSnapshot.getChildren())
+                    {
+                        myResponsibilityList.add(ds.getValue(String.class));
+                    }
+                    mMap.clear();
+                    plotMyResponsibilty();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         LatLng mypos = new LatLng(myloc.getLatitude(), myloc.getLongitude());
         LatLngBounds Boundary = new LatLngBounds(
                 new LatLng(myloc.getLatitude() - 20.00, myloc.getLongitude() - 20.00), new LatLng(myloc.getLatitude() + 20.00, myloc.getLongitude() + 20.00));
@@ -187,57 +299,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
 
         });
 
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(myloc.getLatitude(), myloc.getLongitude()), 1500);
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onKeyEntered(String key, GeoLocation location) {
-
-                LatLng latLng = new LatLng(location.latitude, location.longitude);
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.title(key);
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
-                userMarkers.put(key, mCurrLocationMarker);
-                mCurrLocationMarker.showInfoWindow();
-
-            }
-
-            @Override
-            public void onKeyExited(String key) {
-                Marker removeMarker = userMarkers.get(key);
-                userMarkers.remove(key);
-                removeMarker.remove();
-                System.out.println(String.format("Key %s is no longer in the search area", key));
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-                Marker removeMarker = userMarkers.get(key);
-                userMarkers.remove(key);
-                removeMarker.remove();
-                LatLng latLng = new LatLng(location.latitude, location.longitude);
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.title(key);
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
-                userMarkers.put(key, mCurrLocationMarker);
-                mCurrLocationMarker.showInfoWindow();
-                System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-                System.out.println("All initial data has been loaded and events have been fired!");
-            }
-
-            @Override
-            public void onGeoQueryError(DatabaseError error) {
-                Toast.makeText(MapsActivity2.this, "There was an error with this query: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+        }
 
     private void setMediaVolumeMax() {
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -312,17 +374,60 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    protected void onStart() {
+        super.onStart();
+        checkLocPermissions();
+
     }
-        /*private void showWindow() {
-            mCurrLocationMarker.showInfoWindow();
-            Iterator<HashMap.Entry<String, Marker>> iterator2 = userMarkers.entrySet().iterator();
-            while (iterator2.hasNext()) {
-                HashMap.Entry<String, Marker> entry = iterator2.next();
-                entry.getValue().showInfoWindow();
+    private void checkLocPermissions()
+    {
+        coarsePermission=marshmallowPermissions.checkPermissionForCoarseLocations();
+        finePermission = marshmallowPermissions.checkPermissionForLocations();
+        while(!coarsePermission&&!finePermission)
+        {
+            if(!coarsePermission)
+            {
+                marshmallowPermissions.requestPermissionForCoarseLocations();
+                coarsePermission=marshmallowPermissions.checkPermissionForCoarseLocations();
+            }
+            if(!finePermission)
+            {
+                marshmallowPermissions.requestPermissionForLocations();
+                finePermission = marshmallowPermissions.checkPermissionForLocations();
             }
         }
-        */
+        if(session.getShareLocation()) {
+            startLocationService();
+        }
+    }
+    private void startLocationService()
+    {
+        final LocationManager manager = (LocationManager) getSystemService( this.LOCATION_SERVICE );
+        if (manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            startService(locServiceIntent);
+        }
+    }
 
+    @Override
+    public void onBackPressed() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to exit?")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, int id) {
+                        MapsActivity2.super.onBackPressed();
+                    }
+
+
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+
+    }
 }
+

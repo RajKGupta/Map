@@ -1,6 +1,4 @@
 package com.example.rajk.geofiretrial3.services;
-
-
 import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
@@ -11,7 +9,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -39,7 +36,7 @@ public class LocServ extends Service implements GoogleApiClient.ConnectionCallba
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(1000); // Update location every second
+        mLocationRequest.setInterval(5000); // Update location every second
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -65,7 +62,7 @@ public class LocServ extends Service implements GoogleApiClient.ConnectionCallba
     public void onLocationChanged(Location location) {
         lat = String.valueOf(location.getLatitude());
         lon = String.valueOf(location.getLongitude());
-        geoFire.setLocation(session.getPhone(), new GeoLocation(Double.parseDouble(String.valueOf(lat)), Double.parseDouble(String.valueOf(lon))), new GeoFire.CompletionListener() {
+        geoFire.setLocation(session.getUID(), new GeoLocation(Double.parseDouble(String.valueOf(lat)), Double.parseDouble(String.valueOf(lon))), new GeoFire.CompletionListener() {
             @Override
             public void onComplete(String key, DatabaseError error) {
                 if (error != null) {

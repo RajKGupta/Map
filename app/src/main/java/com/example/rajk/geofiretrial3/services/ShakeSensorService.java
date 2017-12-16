@@ -11,12 +11,14 @@ import android.view.WindowManager;
 
 import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.helper.ShakeDetector;
+import com.example.rajk.geofiretrial3.model.SharedPreference;
 
 public class ShakeSensorService extends Service {
 
     private final String TAG = this.getClass().getSimpleName();
     private SensorManager mSensorManager;
     private ShakeDetector mShakeDetector;
+    private SharedPreference session;
 
     public ShakeSensorService() {
     }
@@ -30,7 +32,7 @@ public class ShakeSensorService extends Service {
     public void onCreate() {
         Log.d(TAG, "onCreate");
         super.onCreate();
-
+        session = new SharedPreference(getApplicationContext());
         // ShakeDetector initialization
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor mAccelerometer = mSensorManager
@@ -42,6 +44,8 @@ public class ShakeSensorService extends Service {
             public void onShake(int count) {
                 if (count == 2) {
                     Log.d(TAG, "Shake Count:" + count);
+                    Intent in = new Intent(getApplicationContext(),LocServ.class);
+                    startService(in);
                     Intent intent = new Intent(getApplicationContext(), MapsActivity2.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED +
