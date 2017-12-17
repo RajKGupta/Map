@@ -49,20 +49,23 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".main.AuthenticatePhone"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".main.AuthenticatePhone"
+            android:screenOrientation="portrait" />
 
         <service android:name=".services.LocServ" />
         <service android:name=".services.ShakeSensorService" />
 
         <activity
             android:name=".main.MainActivity"
-            android:screenOrientation="portrait"
             android:label="@string/title_activity_main"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".main.PhoneAuth2"
+        <activity
+            android:name=".main.PhoneAuth2"
             android:screenOrientation="portrait" />
-        <activity android:name=".main.LoginActivity"
+        <activity
+            android:name=".main.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -70,7 +73,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".main.ProfileActivity"
+        <activity
+            android:name=".main.ProfileActivity"
             android:screenOrientation="portrait" />
 
         <service android:name=".services.MyFirebaseInstanceIDService">
@@ -79,15 +83,21 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".step2.Step2PickContact"
+        <activity
+            android:name=".step2.Step2PickContact"
             android:screenOrientation="portrait" />
-        <activity android:name=".step2.PickContact"
+        <activity
+            android:name=".step2.PickContact"
             android:screenOrientation="portrait" />
-        <activity android:name=".step2.PickContact2"
+        <activity
+            android:name=".step2.PickContact2"
             android:screenOrientation="portrait" />
 
         <service
             android:name=".services.UploadContact"
+            android:exported="false" />
+        <service
+            android:name=".services.SendSMSService"
             android:exported="false"></service>
     </application>
 

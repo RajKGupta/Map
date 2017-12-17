@@ -1,4 +1,12 @@
 package com.example.rajk.geofiretrial3;
+///TODO 1 combine all panic button functionality in 1 method
+// TODO 2 when panic button is activated check for
+// i) location permissions
+// ii)sms sending permissions
+// iii) ask to enable gps
+// iv) start location service
+// v) start SendSMSService
+// TODO 3 Decide what to do If somebody in myResponsibilitylist activates panic mode I have added the check already see the TODO line 455
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,24 +16,17 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
-import android.support.v4.app.FragmentActivity;
+import android.provider.Settings;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
 import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
-import com.example.rajk.geofiretrial3.main.LoginActivity;
 import com.example.rajk.geofiretrial3.main.MainActivity;
-import com.example.rajk.geofiretrial3.model.GlobalEmployee;
+import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.services.LocServ;
 import com.example.rajk.geofiretrial3.services.ShakeSensorService;
@@ -45,14 +46,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.Iterator;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
+import static com.example.rajk.geofiretrial3.SaferIndia.showLongToast;
 import static com.example.rajk.geofiretrial3.SaferIndia.userLoction;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
@@ -68,11 +68,15 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
     Marker mCurrLocationMarker;
     private ToggleButton toggleButton;
     private MediaPlayer mediaPlayer;
-    private Boolean coarsePermission,finePermission;
+    private Boolean coarsePermission, finePermission;
     private MarshmallowPermissions marshmallowPermissions;
     private Intent locServiceIntent;
+    private Location GwaliorLocation;
     private ValueEventListener myResponsibilityListListener;
     private ArrayList<String> myResponsibilityList = new ArrayList<>();
+    private GeoQuery GwaliorGeoQuery;
+    private HashMap<String,PersonalDetails> myResponsibilityDetail=new HashMap<>();
+    HashMap<DatabaseReference, ValueEventListener> dbPersonalDetailHashMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,18 +84,20 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         FrameLayout frame = (FrameLayout) findViewById(R.id.frame);
         getLayoutInflater().inflate(R.layout.activity_maps2, frame);
 
-        locServiceIntent = new Intent(MapsActivity2.this,LocServ.class);
+        locServiceIntent = new Intent(MapsActivity2.this, LocServ.class);
 
         session = new SharedPreference(this);
         startService(new Intent(getApplicationContext(), ShakeSensorService.class));
+        GwaliorLocation = new Location("");
+        GwaliorLocation.setLatitude(26.2183);
+        GwaliorLocation.setLongitude(78.1828);
+        myloc = new Location("");
 
         marshmallowPermissions = new MarshmallowPermissions(this);
-        checkLocPermissions();
-
-        myloc = new Location("");
-        myloc.setLatitude(26.207613);
-        myloc.setLongitude(78.1650822);
-
+        if(!marshmallowPermissions.checkPermissionForSendSms())
+        {
+            marshmallowPermissions.requestPermissionForReadsms();
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -126,7 +132,6 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     mediaPlayer.setLooping(true);
                     mediaPlayer.start();
                     prepareDistressAlert();
-                    startLocationService();
 
                 } else {
                     // The toggle is disabled
@@ -136,8 +141,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     Toast.makeText(getApplicationContext(), R.string.sound_stopped_message, Toast.LENGTH_SHORT).show();
                     mediaPlayer.stop();
                     mediaPlayer.reset();
-                    if(!session.getShareLocation())
-                    {
+                    if (!session.getShareLocation()) {
                         stopService(locServiceIntent);
                     }
                 }
@@ -145,13 +149,13 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         });
     }
 
-    private void plotMyResponsibilty() {
+    private void plotMyResponsibility() {
 
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(myloc.getLatitude(), myloc.getLongitude()), 1500);
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+        GwaliorGeoQuery = geoFire.queryAtLocation(new GeoLocation(GwaliorLocation.getLatitude(),GwaliorLocation.getLongitude()), 3000);
+        GwaliorGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                if(myResponsibilityList.indexOf(key)!=-1) {
+                if (myResponsibilityList.indexOf(key) != -1) {
                     LatLng latLng = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
@@ -161,6 +165,22 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     userMarkers.put(key, mCurrLocationMarker);
                     mCurrLocationMarker.showInfoWindow();
                 }
+                else if(key.equals(session.getUID()))
+                {
+                    LatLng mypos = new LatLng(location.latitude,location.longitude);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(mypos);
+                    markerOptions.title("Me");
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(mypos));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+                    userMarkers.put(session.getUID(),mCurrLocationMarker);
+                    myloc.setLatitude(location.latitude);
+                    myloc.setLongitude(location.longitude);
+
+                }
+
             }
 
             @Override
@@ -170,6 +190,15 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     userMarkers.remove(key);
                     removeMarker.remove();
                     System.out.println(String.format("Key %s is no longer in the search area", key));
+                }
+                else if(key.equals(session.getUID()))
+                {
+                    Marker removeMarker = userMarkers.get(key);
+                    userMarkers.remove(key);
+                    removeMarker.remove();
+                    System.out.println(String.format("Key %s is no longer in the search area", key));
+                    myloc.setLatitude(0.0);
+                    myloc.setLongitude(0.0);
                 }
             }
 
@@ -189,7 +218,26 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     mCurrLocationMarker.showInfoWindow();
                     System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
                 }
+                else if(key.equals(session.getUID()))
+                {
+                    Marker removeMarker = userMarkers.get(key);
+                    userMarkers.remove(key);
+                    removeMarker.remove();
+                    LatLng mypos = new LatLng(location.latitude,location.longitude);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(mypos);
+                    markerOptions.title("Me");
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(mypos));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+                    userMarkers.put(session.getUID(),mCurrLocationMarker);
+                    myloc.setLatitude(location.latitude);
+                    myloc.setLongitude(location.longitude);
+                }
+
             }
+
             @Override
             public void onGeoQueryReady() {
                 System.out.println("All initial data has been loaded and events have been fired!");
@@ -202,104 +250,44 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         });
 
     }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         myResponsibilityListListener = DBREF.child(users).child(session.getUID()).child(myResponsibility).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists())
-                {
-                    myResponsibilityList.clear();
-                    for(DataSnapshot ds:dataSnapshot.getChildren())
-                    {
-                        myResponsibilityList.add(ds.getValue(String.class));
-                    }
-                    mMap.clear();
-                    plotMyResponsibilty();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        LatLng mypos = new LatLng(myloc.getLatitude(), myloc.getLongitude());
-        LatLngBounds Boundary = new LatLngBounds(
-                new LatLng(myloc.getLatitude() - 20.00, myloc.getLongitude() - 20.00), new LatLng(myloc.getLatitude() + 20.00, myloc.getLongitude() + 20.00));
-        // Constrain the camera target to the Adelaide bounds.
-        mMap.setLatLngBoundsForCameraTarget(Boundary);
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(mypos);
-        markerOptions.title("Arvind Nahar Enterprises");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
-        mCurrLocationMarker.showInfoWindow();
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(mypos));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-            @Override
-            public boolean onMarkerClick(final Marker arg0) {
-                if (arg0 != null && !arg0.getTitle().equals("Arvind Nahar Enterprises")) { // if marker  source is clicked
-                    LayoutInflater layoutInflaterAndroid = LayoutInflater.from(MapsActivity2.this);
-                    View mView = layoutInflaterAndroid.inflate(R.layout.emp_desc, null);
-                    final AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(MapsActivity2.this);
-                    alertDialogBuilderUserInput.setView(mView);
-
-                    final TextView name = (TextView) mView.findViewById(R.id.name1);
-                    final TextView phone = (TextView) mView.findViewById(R.id.number1);
-                    final TextView address = (TextView) mView.findViewById(R.id.address1);
-                    final TextView lastSeen = (TextView) mView.findViewById(R.id.lastseen1);
-                    alertDialogBuilderUserInput.setTitle("Employee Details");
-                    String key = arg0.getTitle();
-                    DatabaseReference dbDetail = FirebaseDatabase.getInstance().getReference().child("GlobalEmployee").child("EmployeeDetail").child(key).getRef();
-                    dbDetail.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                GlobalEmployee employee = dataSnapshot.getValue(GlobalEmployee.class);
-                                name.setText(employee.getName());
-                                phone.setText(employee.getPhone_num());
-                                address.setText(employee.getAddress());
-                                lastSeen.setText(employee.getLastSeen());
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            myResponsibilityList.clear();
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                myResponsibilityList.add(ds.getValue(String.class));
                             }
+                            mMap.clear();
+                            userMarkers.clear();
+                            myResponsibilityDetail.clear();
+                            if(GwaliorGeoQuery!=null)
+                                GwaliorGeoQuery.removeAllListeners();
+                            removePersonalDetailsListeners();
+                            plotMyResponsibility();
+                            fetchDetailsOfMyResponsibility();
                         }
+                    }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                        }
-                    });
-                    alertDialogBuilderUserInput.setIcon(R.drawable.ic_face_black_24dp);
-                    alertDialogBuilderUserInput
-                            .setCancelable(true)
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialogBox, int id) {
-                                    dialogBox.dismiss();
-                                    //         showWindow();
-                                    arg0.showInfoWindow();
-                                }
-                            });
+                    }
+                });
+                LatLng Gwaliorpos = new LatLng(GwaliorLocation.getLatitude(),GwaliorLocation.getLongitude());
+                LatLngBounds Boundary = new LatLngBounds(
+                        new LatLng(GwaliorLocation.getLatitude() - 20.00, GwaliorLocation.getLongitude() - 20.00), new LatLng(GwaliorLocation.getLatitude() + 20.00, GwaliorLocation.getLongitude() + 20.00));
+                // Constrain the camera target to the Gwalior bounds.
+                mMap.setLatLngBoundsForCameraTarget(Boundary);
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(Gwaliorpos));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+                plotMyResponsibility();
 
-
-                    AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
-                    alertDialogAndroid.show();
-                } else if (arg0.getTitle().equals("Arvind Nahar Enterprises")) {
-                    //         showWindow();
-                    mCurrLocationMarker.showInfoWindow();
-                }
-                return true;
-            }
-
-        });
-
-        }
+    }
 
     private void setMediaVolumeMax() {
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -383,7 +371,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
     {
         coarsePermission=marshmallowPermissions.checkPermissionForCoarseLocations();
         finePermission = marshmallowPermissions.checkPermissionForLocations();
-        while(!coarsePermission&&!finePermission)
+        if(!coarsePermission&&!finePermission)
         {
             if(!coarsePermission)
             {
@@ -403,10 +391,19 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
     private void startLocationService()
     {
         final LocationManager manager = (LocationManager) getSystemService( this.LOCATION_SERVICE );
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) &&!manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+        {
+            Intent intent1 = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent1);
+        }
         if (manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             startService(locServiceIntent);
         }
-    }
+        else
+        {
+            showLongToast(MapsActivity2.this,"Enable your GPS to see your location");
+        }
+            }
 
     @Override
     public void onBackPressed() {
@@ -427,7 +424,56 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(myResponsibilityListListener!=null)
+            DBREF.child(users).child(session.getUID()).child(myResponsibility).removeEventListener(myResponsibilityListListener);
+        if(GwaliorGeoQuery!=null)
+        GwaliorGeoQuery.removeAllListeners();
+        removePersonalDetailsListeners();
+    }
+    private void fetchDetailsOfMyResponsibility()
+    {
+        for(String id:myResponsibilityList) {
+            DatabaseReference personalDetailReference =DBREF.child(users).child(id) ;
+            ValueEventListener  personalDetailReferenceVLE= personalDetailReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists())
+                    {
+                        PersonalDetails personalDetails = dataSnapshot.getValue(PersonalDetails.class);
+                        if(myResponsibilityDetail.containsKey(personalDetails.getId()))
+                        {
+                            myResponsibilityDetail.remove(personalDetails.getId());
+                        }
+                        myResponsibilityDetail.put(personalDetails.getId(),personalDetails);
+                        if(personalDetails.getPanic())
+                        {
+                            //TODO Track who is in danger
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            dbPersonalDetailHashMap.put(personalDetailReference,personalDetailReferenceVLE);
+        }
+    }
+    private void removePersonalDetailsListeners()
+    {
+        Iterator<HashMap.Entry<DatabaseReference, ValueEventListener>> iterator = dbPersonalDetailHashMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            HashMap.Entry<DatabaseReference, ValueEventListener> entry = (HashMap.Entry<DatabaseReference, ValueEventListener>) iterator.next();
+            if (entry.getValue() != null)
+                entry.getKey().removeEventListener(entry.getValue());
+        }
+        dbPersonalDetailHashMap.clear();
     }
 }
 

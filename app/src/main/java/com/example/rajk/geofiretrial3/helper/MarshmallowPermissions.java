@@ -91,7 +91,7 @@ public class MarshmallowPermissions {
     }
 
     public void requestPermissionForLocations(){
-            Toast.makeText(activity, "Please allow us to use locations.", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Please allow us to use locations.", Toast.LENGTH_SHORT).show();
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCSERV_REQUEST_CODE);
 
     }
@@ -105,7 +105,7 @@ public class MarshmallowPermissions {
     }
 
     public void requestPermissionForCoarseLocations(){
-            Toast.makeText(activity, "Please allow us to use locations.", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Please allow us to use locations.", Toast.LENGTH_SHORT).show();
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},LOCSERV_COARSE_REQUEST_CODE);
     }
 
@@ -136,11 +136,8 @@ public class MarshmallowPermissions {
             return false;
         }
     }
-
     public void requestPermissionForSendSms(){
-            Toast.makeText(activity, "Please allow to send sms in case of emergencies.", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Allow to send sms in case of emergencies to guardians.", Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.SEND_SMS},SENDSMS_REQUEST_CODE);
       }
-
-
 }

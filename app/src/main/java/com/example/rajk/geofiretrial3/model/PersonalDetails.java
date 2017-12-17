@@ -6,6 +6,23 @@ package com.example.rajk.geofiretrial3.model;
 
 public class PersonalDetails {
     private String name,phone,blood,address,gender,age,diseases,imgurl,email,id;
+    private Boolean panic;
+
+    public Boolean getPanic() {
+        return panic;
+    }
+
+    public void setPanic(Boolean panic) {
+        this.panic = panic;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public PersonalDetails() {
     }
@@ -36,6 +53,7 @@ public class PersonalDetails {
         this.imgurl = imgurl;
         this.email = email;
         this.id=id;
+        this.panic=false;
     }
 
     public String getName() {

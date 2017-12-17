@@ -42,7 +42,7 @@ public class ShakeSensorService extends Service {
 
             @Override
             public void onShake(int count) {
-                if (count == 2) {
+                if (count == 3) {
                     Log.d(TAG, "Shake Count:" + count);
                     Intent in = new Intent(getApplicationContext(),LocServ.class);
                     startService(in);
