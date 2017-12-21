@@ -77,7 +77,6 @@ public class LocServ extends Service implements GoogleApiClient.ConnectionCallba
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         System.out.println("connection failed gps");
-        //TODO handle case where location not available through mobile and location service.
 
     }
 

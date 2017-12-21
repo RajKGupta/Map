@@ -72,6 +72,9 @@ public class SharedPreference {
     public String getEmail() {
         return pref.getString(SaferIndia.email, "");
     }
+    public String getPin() {
+        return pref.getString(SaferIndia.pin, "");
+    }
 
     public void setEmail(String email) {
         editor.putString(SaferIndia.email,email);
@@ -83,6 +86,14 @@ public class SharedPreference {
     }
     public void setUID(String UID) {
         editor.putString(SaferIndia.UID,UID);
+        editor.commit();
+    }
+    public void setName(String name) {
+        editor.putString(SaferIndia.name,name);
+        editor.commit();
+    }
+    public void setPin(String pin) {
+        editor.putString(SaferIndia.pin,pin);
         editor.commit();
     }
     public Boolean getShareLocation() {

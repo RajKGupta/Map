@@ -164,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     private void showProgressDialog() {
-        pd.setTitle("Loading");
+        pd.setMessage("Signing In .. ");
         pd.show();
     }
 
@@ -225,6 +225,7 @@ public class LoginActivity extends AppCompatActivity implements
                 session.setEmail(user.getEmail());
                 session.setUID(user.getUid());
                 session.setImgurl(String.valueOf(user.getPhotoUrl()));
+                session.setName(user.getDisplayName());
 
                 user_exists.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

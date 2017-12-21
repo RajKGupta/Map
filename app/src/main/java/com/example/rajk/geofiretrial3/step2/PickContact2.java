@@ -1,4 +1,5 @@
 package com.example.rajk.geofiretrial3.step2;
+// TODO Delay of 2 sec for contacts to load
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -6,12 +7,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.os.Handler;
 
 import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
-import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
-import com.example.rajk.geofiretrial3.main.ProfileActivity;
 import com.example.rajk.geofiretrial3.services.UploadContact;
 import com.wafflecopter.multicontactpicker.ContactResult;
 import com.wafflecopter.multicontactpicker.MultiContactPicker;
@@ -22,19 +24,26 @@ import static com.example.rajk.geofiretrial3.SaferIndia.contactList;
 
 public class PickContact2 extends AppCompatActivity {
     private static final int CONTACT_PICKER_REQUEST = 12;
-    private MarshmallowPermissions marshmallowPermissions;
+    private static int SPLASH_TIME_OUT = 3000;
+    ProgressDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pick_contact);
-            call();
-        }
+
+        dialog = new ProgressDialog(PickContact2.this);
+        dialog.setMessage( "Detecting...");
+        dialog.show();
+        call();
+
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == CONTACT_PICKER_REQUEST){
-            if(resultCode == RESULT_OK) {
-
+            if(resultCode == RESULT_OK)
+            {
                 ProgressDialog dialog = new ProgressDialog(PickContact2.this);
                 dialog.setMessage("Adding Contacts to your Emergency Contact List");
                 dialog.show();
@@ -58,6 +67,8 @@ public class PickContact2 extends AppCompatActivity {
     }
     private  void call()
     {
+
+
         new MultiContactPicker.Builder(PickContact2.this) //Activity/fragment context
                 .theme(R.style.AppTheme_NoActionBar) //Optional - default: MultiContactPicker.Azure
                 .hideScrollbar(false) //Optional - default: false
@@ -67,5 +78,12 @@ public class PickContact2 extends AppCompatActivity {
                 .bubbleColor(ContextCompat.getColor(PickContact2.this, R.color.colorPrimary)) //Optional - default: Azure Blue
                 .bubbleTextColor(Color.WHITE) //Optional - default: White
                 .showPickerForResult(CONTACT_PICKER_REQUEST);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+            }
+        }, SPLASH_TIME_OUT);
     }
 }

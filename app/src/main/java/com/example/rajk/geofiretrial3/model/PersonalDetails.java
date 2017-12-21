@@ -5,7 +5,7 @@ package com.example.rajk.geofiretrial3.model;
  */
 
 public class PersonalDetails {
-    private String name,phone,blood,address,gender,age,diseases,imgurl,email,id;
+    private String name,phone,blood,address,gender,age,diseases,imgurl,email,id, pin;
     private Boolean panic;
 
     public Boolean getPanic() {
@@ -110,5 +110,13 @@ public class PersonalDetails {
 
     public void setDiseases(String diseases) {
         this.diseases = diseases;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 }

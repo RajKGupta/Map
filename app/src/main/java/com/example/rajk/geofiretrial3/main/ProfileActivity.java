@@ -13,7 +13,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.model.Online;
 import com.example.rajk.geofiretrial3.model.PersonalDetails;
@@ -21,11 +20,7 @@ import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.step2.Step2PickContact;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-
-import java.net.ServerSocket;
-import java.util.Calendar;
 
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
@@ -60,6 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
         egender.clearCheck();
         ediseases = (EditText) findViewById(R.id.edisease);
         submit_profile = (Button) findViewById(R.id.submit_profile);
+        ename.setText(session.getName());
 
         submit_profile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,5 +128,4 @@ public class ProfileActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-
 }

@@ -1,7 +1,11 @@
 package com.example.rajk.geofiretrial3.main;
 
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,16 +18,19 @@ import android.widget.Toast;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
 import com.example.rajk.geofiretrial3.step2.PickContact;
-import com.example.rajk.geofiretrial3.step2.Step2PickContact;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-private MarshmallowPermissions marshmallowPermissions;
+
+    private static Boolean alarm = true;
+    private MediaPlayer mediaPlayer;
+    private MarshmallowPermissions marshmallowPermissions;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        marshmallowPermissions =new MarshmallowPermissions(this);
+        marshmallowPermissions = new MarshmallowPermissions(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -47,55 +54,48 @@ private MarshmallowPermissions marshmallowPermissions;
         }
     }
 
-/*    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.trackme) {
-            // Handle the camera action
-        } else if (id == R.id.location) {
+        if (id == R.id.location) {
+            //TODO open location directly
 
+            //gpsON  = CheckGpsStatus();
+            String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            Toast.makeText(this, provider, Toast.LENGTH_SHORT).show();
+
+            if (!provider.contains("gps")) { //if gps is disabled
+
+            } else { //if gps is enabled
+
+            }
         } else if (id == R.id.alarm) {
-
+            if (alarm) {
+                setMediaVolumeMax();
+                mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.scream);
+                mediaPlayer.setLooping(true);
+                mediaPlayer.start();
+                alarm = false;
+            } else {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+                alarm = true;
+            }
         } else if (id == R.id.profile) {
 
         } else if (id == R.id.addgaurdians) {
-            if(marshmallowPermissions.checkPermissionForContacts())
-                startActivity(new Intent(this,PickContact.class));
-            else
-            {
-                marshmallowPermissions.requestPermissionForContacts();
             if (marshmallowPermissions.checkPermissionForContacts())
-                    startActivity(new Intent(this,PickContact.class));
-                else
-                {
-                    Toast.makeText(this,"You need to provide permission to access contacts.",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, PickContact.class));
+            else {
+                marshmallowPermissions.requestPermissionForContacts();
+                if (marshmallowPermissions.checkPermissionForContacts())
+                    startActivity(new Intent(this, PickContact.class));
+                else {
+                    Toast.makeText(this, "You need to provide permission to access contacts.", Toast.LENGTH_SHORT).show();
                 }
-
             }
 
         } else if (id == R.id.shareapp) {
@@ -106,4 +106,11 @@ private MarshmallowPermissions marshmallowPermissions;
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void setMediaVolumeMax() {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        int maxVolume = audioManager.getStreamMaxVolume(3);
+        audioManager.setStreamVolume(3, maxVolume, 1);
+    }
+
 }

@@ -14,7 +14,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
 public class SaferIndia extends android.support.multidex.MultiDexApplication {
     private static SaferIndia mInstance;
     public static DatabaseReference DBREF;
@@ -43,6 +42,7 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static String users = "Users";
     public static String loggedIn = "loggedIn";
     public static String UID = "UID";
+    public static String pin = "pin";
     public static String phoneVsId= "phoneVsId";
     public static String emergencyContact="emergencyContact";
     public static String guardianNotUser ="guardianNotUser";

@@ -27,13 +27,12 @@ public class SendSMSService extends IntentService {
         super("SendSMSService");
     }
     private SharedPreference session;
-    private MarshmallowPermissions marshmallowPermissions;
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             ///SENDING SMS TO ALL GUARDIANS CALL THIS SERVICE IN CASE OF EMERGENCY
             session = new SharedPreference(this);
-            final String msg  = "EMERGENCY!!! I need your help. Track me here - http://track.com?uid="+session.getUID();
+            final String msg  = "EMERGENCY!!! I need your help. Track me here - feelsafe-9b333.firebaseapp.com/?uid="+session.getUID();
             if(checkPermissionForSendSms())
             {
                 DBREF.child(users).child(session.getUID()).child(emergencyContact).addListenerForSingleValueEvent(new ValueEventListener() {

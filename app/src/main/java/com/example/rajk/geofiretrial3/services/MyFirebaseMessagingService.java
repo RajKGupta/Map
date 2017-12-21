@@ -30,8 +30,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private ArrayList<String> chatnotifList = new ArrayList<>();
     private static final String TAG1 = "MyFireMesgService";
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
-        //TODO get the type of notification handle separately for chats, quotation and normal assigned tasks
+    public void onMessageReceived(RemoteMessage remoteMessage)
+    {
         String type = remoteMessage.getData().get("type");
             String body = remoteMessage.getData().get("body");
             String senderuid = remoteMessage.getData().get("senderuid");

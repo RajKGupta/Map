@@ -48,6 +48,7 @@
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/title"
                 android:id="@+id/signIn"
+                android:elevation="20dp"
                 android:layout_marginBottom="90dp"
                 android:layout_alignParentBottom="true"
                 android:layout_centerInParent="true"/>
