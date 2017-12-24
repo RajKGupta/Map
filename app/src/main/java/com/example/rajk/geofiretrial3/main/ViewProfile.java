@@ -32,10 +32,9 @@ import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
 public class ViewProfile extends AppCompatActivity {
 
-    String name, phone, blood, address, gender, age, diseases;
     EditText ename, ephone, eblood, eaddress, eage, ediseases, egender;
     public SharedPreference session;
-
+    String gender;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +93,7 @@ public class ViewProfile extends AppCompatActivity {
 
                 ename.setText(session.getName());
                 ephone.setText(session.getPhone());
+                ephone.setEnabled(false);
                 eaddress.setText(session.getAddress());
                 eage.setText(session.getAge());
                 eblood.setText(session.getBlood());
@@ -108,10 +108,9 @@ public class ViewProfile extends AppCompatActivity {
                 submit_profile.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final String name, phone, blood, address, gender, age, diseases;
+                        final String name, blood, address, gender, age, diseases;
                         name = ename.getText().toString().trim();
                         address = eaddress.getText().toString().trim();
-                        phone = ephone.getText().toString().trim();
                         blood = eblood.getText().toString().trim();
                         age = eage.getText().toString().trim();
                         diseases = ediseases.getText().toString().trim();
@@ -119,10 +118,10 @@ public class ViewProfile extends AppCompatActivity {
                         esex[0] = (RadioButton) customerEditDetails.findViewById(sex);
                         gender = esex[0].getText().toString().trim();
 
-                        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(address) || TextUtils.isEmpty(phone) || TextUtils.isEmpty(gender) || TextUtils.isEmpty(age) || TextUtils.isEmpty(blood) || TextUtils.isEmpty(diseases)) {
+                        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(address) ||  TextUtils.isEmpty(gender) || TextUtils.isEmpty(age) || TextUtils.isEmpty(blood) || TextUtils.isEmpty(diseases)) {
                             Toast.makeText(ViewProfile.this, "Fill in all the details", Toast.LENGTH_SHORT).show();
                         } else {
-                            session.setSharedPreference(name, phone, blood, address, gender, age, diseases, session.getImgurl(), session.getEmail());
+                            session.setSharedPreference(name, session.getPhone(), blood, address, gender, age, diseases, session.getImgurl(), session.getEmail());
                             DBREF.child(users).child(session.getUID()).setValue(new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail(), session.getUID()));
                             DBREF.child(phoneVsId).child(session.getPhone()).setValue(session.getUID());
                             DBREF.child(userSession).child(session.getUID()).setValue(new Online(true, getTimeStamp(), session.getPhone(), session.getName(), session.getUID()));
@@ -135,7 +134,6 @@ public class ViewProfile extends AppCompatActivity {
                                             DBREF.child(users).child(ds.getValue(String.class)).child(emergencyContact).child(session.getPhone()).setValue(session.getUID());
 
                                             ename.setText(name);
-                                            ephone.setText(phone);
                                             eaddress.setText(address);
                                             eage.setText(age);
                                             eblood.setText(blood);
