@@ -100,7 +100,9 @@
             android:exported="false" />
         <service
             android:name=".services.SendSMSService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".main.ViewProfile"></activity>
     </application>
 
 </manifest>

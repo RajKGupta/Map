@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="20dp">
 
-    <EditText
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/enterpinwrap"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Pin"
-        android:padding="10dp"
-        android:id="@+id/enterpin"
-        android:textColor="@color/black"/>
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/enterpin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:hint="Enter Pin"
+            android:inputType="number"
+            android:maxLength="4"
+            android:padding="10dp"
+            android:textColor="@color/black" />
+    </android.support.design.widget.TextInputLayout>
 
     <Button
-        android:layout_marginTop="20dp"
+        android:id="@+id/oksave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/enterpin"
-        android:id="@+id/oksave"
+        android:layout_below="@+id/enterpinwrap"
         android:layout_centerHorizontal="true"
-        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorPrimary"
         android:text="OK"
-        android:background="@color/colorPrimary"/>
+        android:textColor="@color/white" />
 
 </RelativeLayout>

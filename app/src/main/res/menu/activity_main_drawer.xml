@@ -34,6 +34,10 @@
                 android:icon="@drawable/ic_local_phone_black_24dp"
                 android:title="Add Gaurdians" />
             <item
+                android:id="@+id/changepin"
+                android:icon="@drawable/ic_local_phone_black_24dp"
+                android:title="Change Pin" />
+            <item
                 android:id="@+id/shareapp"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Share" />

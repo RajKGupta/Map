@@ -17,10 +17,12 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.provider.Settings;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -102,24 +104,29 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
 
         marshmallowPermissions = new MarshmallowPermissions(this);
         if (!marshmallowPermissions.checkPermissionForSendSms()) {
-            marshmallowPermissions.requestPermissionForReadsms();
+            marshmallowPermissions.requestPermissionForSendSms();
         }
-
-        if (!session.getPin().equals("")) {
+        if (session.getPin().equals(""))
+        {
             viewSelectedImages = new AlertDialog.Builder(MapsActivity2.this)
                     .setView(R.layout.activity_pin_dialogue).setCancelable(false).create();
             viewSelectedImages.show();
 
             final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
             Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
+            final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
+            EnterPinWrap.setHint("Enter Pin");
+            EnterPinWrap.setHintAnimationEnabled(true);
 
             oksave.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String pin = EnterPin.getText().toString().trim();
-                    if (TextUtils.isEmpty(pin)) {
-                        Toast.makeText(MapsActivity2.this, "Please enter Pin", Toast.LENGTH_SHORT).show();
+                    hideKeyboard();
+                    if (TextUtils.isEmpty(pin)||pin.length()!=4) {
+                        EnterPinWrap.setError("Please Enter the Pin");
                     } else {
+                        EnterPinWrap.setErrorEnabled(false);
                         DBREF.child(users).child(session.getUID()).child("pin").setValue(pin);
                         session.setPin(pin);
                         viewSelectedImages.dismiss();
@@ -154,20 +161,26 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
 
                     final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
                     Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
+                    final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
+                    EnterPinWrap.setHint("Enter Pin");
+                    EnterPinWrap.setHintAnimationEnabled(true);
 
                     oksave.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             String pin = EnterPin.getText().toString().trim();
-                            if (!pin.equals(session.getPin())) {
-                                Toast.makeText(MapsActivity2.this, "Please enter Pin", Toast.LENGTH_SHORT).show();
+                            hideKeyboard();
+                            if (pin.equals("")||!pin.equals(session.getPin()))
+                            {
+                                EnterPinWrap.setError("Please enter the correct pin!!");
+                                EnterPin.setText("");
                             } else {
+                                EnterPinWrap.setErrorEnabled(false);
                                 DBREF.child(users).child(session.getUID()).child("panic").setValue(false);
                                 session.setPanick(false);
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                     toggleButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.circle_bg_on));
                                 }
-                                Toast.makeText(getApplicationContext(), R.string.sound_stopped_message, Toast.LENGTH_SHORT).show();
                                 mediaPlayer.stop();
                                 mediaPlayer.reset();
                                 if (!session.getShareLocation()) {
@@ -322,7 +335,6 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             toggleButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.circle_bg_off));
         }
-        Toast.makeText(getApplicationContext(), R.string.sound_playing_message, Toast.LENGTH_SHORT).show();
         setMediaVolumeMax();
         mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.sample);
         mediaPlayer.setLooping(true);
@@ -370,8 +382,25 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
     private void startLocationService() {
         final LocationManager manager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            Intent intent1 = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent1);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Are you sure you want to exit?")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, int id) {
+                            Intent intent1 = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(intent1);
+                            dialog.dismiss();
+                        }
+
+
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Toast.makeText(MapsActivity2.this, "You have to give this permission to use the app!!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
         }
         if (manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             startService(locServiceIntent);
@@ -446,5 +475,14 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                 entry.getKey().removeEventListener(entry.getValue());
         }
         dbPersonalDetailHashMap.clear();
+    }
+
+
+    private void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).
+                    hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }
