@@ -232,7 +232,7 @@ public class LoginActivity extends AppCompatActivity implements
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             PersonalDetails user = dataSnapshot.getValue(PersonalDetails.class);
-                            session.setSharedPreference(user.getName(), user.getPhone(), user.getBlood(), user.getAddress(), user.getGender(), user.getAge(), user.getDiseases(), user.getImgurl(), user.getEmail());
+                            session.setSharedPreference(user.getName(), user.getPhone(), user.getBlood(), user.getAddress(), user.getGender(), user.getAge(), user.getDiseases(), user.getImgurl(), user.getEmail(), user.getPin());
                             setFirebaseToken(true);
 
                         } else {

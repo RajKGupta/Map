@@ -6,7 +6,7 @@ package com.example.rajk.geofiretrial3;
 // iv) start location service
 // v) start SendSMSService
 // TODO 3 Decide what to do If somebody in myResponsibilitylist activates panic mode I have added the check already see the TODO line 455
-
+//TODO 4 We are removing the shareLocationFunctionality
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,11 +27,15 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.bumptech.glide.Glide;
 import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
 import com.example.rajk.geofiretrial3.main.MainActivity;
+import com.example.rajk.geofiretrial3.main.PanicMapsActivity;
 import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.services.LocServ;
@@ -59,7 +63,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import static com.bumptech.glide.Glide.with;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
+import static com.example.rajk.geofiretrial3.SaferIndia.myPanicResponsibilityId;
 import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
 import static com.example.rajk.geofiretrial3.SaferIndia.showLongToast;
 import static com.example.rajk.geofiretrial3.SaferIndia.userLoction;
@@ -205,18 +211,18 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     LatLng latLng = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
-                    markerOptions.title(key);
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                     Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    mCurrLocationMarker.setTitle(key);
                     userMarkers.put(key, mCurrLocationMarker);
                     mCurrLocationMarker.showInfoWindow();
                 } else if (key.equals(session.getUID())) {
                     LatLng mypos = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(mypos);
-                    markerOptions.title("Me");
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                    mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    mCurrLocationMarker.setTitle(key);
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(mypos));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
                     userMarkers.put(session.getUID(), mCurrLocationMarker);
@@ -238,8 +244,8 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     userMarkers.remove(key);
                     removeMarker.remove();
                     System.out.println(String.format("Key %s is no longer in the search area", key));
-                    myloc.setLatitude(0.0);
-                    myloc.setLongitude(0.0);
+                    myloc.setLatitude(GwaliorLocation.getLatitude());
+                    myloc.setLongitude(GwaliorLocation.getLongitude());
                 }
             }
 
@@ -252,9 +258,9 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     LatLng latLng = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
-                    markerOptions.title(key);
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                     Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    mCurrLocationMarker.setTitle(key);
                     userMarkers.put(key, mCurrLocationMarker);
                     mCurrLocationMarker.showInfoWindow();
                     System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
@@ -265,11 +271,10 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     LatLng mypos = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(mypos);
-                    markerOptions.title("Me");
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                    mCurrLocationMarker = mMap.addMarker(markerOptions);
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(mypos));
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+                    Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    mCurrLocationMarker.setTitle(key);
+                    mCurrLocationMarker.setTitle(key);
                     userMarkers.put(session.getUID(), mCurrLocationMarker);
                     myloc.setLatitude(location.latitude);
                     myloc.setLongitude(location.longitude);
@@ -307,9 +312,9 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     if (GwaliorGeoQuery != null)
                         GwaliorGeoQuery.removeAllListeners();
                     removePersonalDetailsListeners();
-                    plotMyResponsibility();
                     fetchDetailsOfMyResponsibility();
-                }
+                    }
+                plotMyResponsibility();
             }
 
             @Override
@@ -324,7 +329,54 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         mMap.setLatLngBoundsForCameraTarget(Boundary);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Gwaliorpos));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-        plotMyResponsibility();
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            // Use default InfoWindow frame
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            // Defines the contents of the InfoWindow
+            @Override
+            public View getInfoContents(Marker arg0) {
+                View v = null;
+                try {
+
+                    // Getting view from the layout file info_window_layout
+                    v = getLayoutInflater().inflate(R.layout.custom_info_window, null);
+                    PersonalDetails personalDetails;
+                    if(arg0.getTitle().equals(session.getUID()))
+                    {
+                      personalDetails = new PersonalDetails(session.getName(),session.getPhone(),session.getBlood(),session.getAddress(),session.getGender(),session.getAge(),session.getDiseases(),session.getImgurl(),session.getEmail(),session.getUID());
+                    }
+                    else
+                     personalDetails= myResponsibilityDetail.get(arg0.getTitle());
+                    // Getting reference to the TextView to set latitude
+                    TextView emailText = (TextView) v.findViewById(R.id.emailText);
+                    emailText.setText(personalDetails.getEmail());
+
+                    TextView nameText = (TextView) v.findViewById(R.id.nameText);
+                    nameText.setText(personalDetails.getName());
+
+                    TextView phoneText = (TextView) v.findViewById(R.id.mobileText);
+                    phoneText.setText(personalDetails.getPhone());
+
+                    ImageView profile = (ImageView)v.findViewById(R.id.userPic);
+                    Glide.with(MapsActivity2.this)
+                            .load(personalDetails.getImgurl())
+                            .centerCrop()
+                            .placeholder(R.drawable.ic_account_circle)
+                            .into(profile);
+
+                } catch (Exception ev) {
+                    System.out.print(ev.getMessage());
+                }
+
+                return v;
+            }
+        });
+        mMap.getUiSettings().setMapToolbarEnabled(false);
 
     }
 
@@ -383,7 +435,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         final LocationManager manager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Are you sure you want to exit?")
+            builder.setMessage("Enable location service to proceed")
                     .setCancelable(false)
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(final DialogInterface dialog, int id) {
@@ -453,7 +505,10 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                         }
                         myResponsibilityDetail.put(personalDetails.getId(), personalDetails);
                         if (personalDetails.getPanic()) {
-                            //TODO Track who is in danger
+                            Intent intent = new Intent(MapsActivity2.this, PanicMapsActivity.class);
+                            intent.putExtra(myPanicResponsibilityId,personalDetails.getId());
+                            startActivity(intent);
+                            finish();
                         }
                     }
                 }
@@ -485,4 +540,5 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
+
 }

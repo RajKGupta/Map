@@ -73,7 +73,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(name) || TextUtils.isEmpty(address) || TextUtils.isEmpty(phone) || TextUtils.isEmpty(gender) || TextUtils.isEmpty(age) || TextUtils.isEmpty(blood) || TextUtils.isEmpty(diseases)) {
                     Toast.makeText(ProfileActivity.this, "Fill all the details", Toast.LENGTH_SHORT).show();
                 } else {
-                    session.setSharedPreference(name, phone, blood, address, gender, age, diseases, session.getImgurl(), session.getEmail());
+                    session.setSharedPreference(name, phone, blood, address, gender, age, diseases, session.getImgurl(), session.getEmail(),"");
                     DBREF.child(users).child(session.getUID()).setValue(new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail(),session.getUID()));
                     DBREF.child(phoneVsId).child(session.getPhone()).setValue(session.getUID());
                     DBREF.child(userSession).child(session.getUID()).setValue(new Online(true, getTimeStamp(),session.getPhone(),session.getName(),session.getUID()));

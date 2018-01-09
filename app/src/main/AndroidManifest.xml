@@ -102,7 +102,17 @@
             android:name=".services.SendSMSService"
             android:exported="false" />
 
-        <activity android:name=".main.ViewProfile"></activity>
+        <activity
+            android:name=".main.ViewProfile"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".main.PanicMapsActivity"
+            android:label="@string/title_activity_panic_maps" />
+
+        <service
+            android:name=".services.PanicButton"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

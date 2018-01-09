@@ -48,6 +48,7 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static String guardianNotUser ="guardianNotUser";
     public static String myResponsibility = "myResponsibility";
     public static String contactList="contactList";
+    public static String myPanicResponsibilityId = "myPanicResponsibilityId";
     public SharedPreference session ;
 
     @Override
