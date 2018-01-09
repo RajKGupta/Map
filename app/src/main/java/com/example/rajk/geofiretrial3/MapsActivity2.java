@@ -7,6 +7,7 @@ package com.example.rajk.geofiretrial3;
 // v) start SendSMSService
 // TODO 3 Decide what to do If somebody in myResponsibilitylist activates panic mode I have added the check already see the TODO line 455
 //TODO 4 We are removing the shareLocationFunctionality
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -63,7 +64,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import static com.bumptech.glide.Glide.with;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.myPanicResponsibilityId;
 import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
@@ -109,36 +109,45 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         myloc = new Location("");
 
         marshmallowPermissions = new MarshmallowPermissions(this);
-        if (!marshmallowPermissions.checkPermissionForSendSms()) {
-            marshmallowPermissions.requestPermissionForSendSms();
-        }
-        if (session.getPin().equals(""))
-        {
-            viewSelectedImages = new AlertDialog.Builder(MapsActivity2.this)
-                    .setView(R.layout.activity_pin_dialogue).setCancelable(false).create();
-            viewSelectedImages.show();
+        if (marshmallowPermissions.checkMultiPermission()) {
 
-            final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
-            Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
-            final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
-            EnterPinWrap.setHint("Enter Pin");
-            EnterPinWrap.setHintAnimationEnabled(true);
+            Toast.makeText(MapsActivity2.this, "All Permissions Granted Successfully", Toast.LENGTH_LONG).show();
 
-            oksave.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String pin = EnterPin.getText().toString().trim();
-                    hideKeyboard();
-                    if (TextUtils.isEmpty(pin)||pin.length()!=4) {
-                        EnterPinWrap.setError("Please Enter the Pin");
-                    } else {
-                        EnterPinWrap.setErrorEnabled(false);
-                        DBREF.child(users).child(session.getUID()).child("pin").setValue(pin);
-                        session.setPin(pin);
-                        viewSelectedImages.dismiss();
+            //check panic state OR
+            if (session.getShareLocation()) {
+                startLocationService();
+            }
+
+            if (session.getPin().equals("")) {
+                viewSelectedImages = new AlertDialog.Builder(MapsActivity2.this)
+                        .setView(R.layout.activity_pin_dialogue).setCancelable(false).create();
+                viewSelectedImages.show();
+
+                final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
+                Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
+                final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
+                EnterPinWrap.setHint("Enter Pin");
+                EnterPinWrap.setHintAnimationEnabled(true);
+
+                oksave.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String pin = EnterPin.getText().toString().trim();
+                        hideKeyboard();
+                        if (TextUtils.isEmpty(pin) || pin.length() != 4) {
+                            EnterPinWrap.setError("Please Enter the Pin");
+                        } else {
+                            EnterPinWrap.setErrorEnabled(false);
+                            DBREF.child(users).child(session.getUID()).child("pin").setValue(pin);
+                            session.setPin(pin);
+                            viewSelectedImages.dismiss();
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+
+            marshmallowPermissions.requestMultiPermission();
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -176,8 +185,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                         public void onClick(View v) {
                             String pin = EnterPin.getText().toString().trim();
                             hideKeyboard();
-                            if (pin.equals("")||!pin.equals(session.getPin()))
-                            {
+                            if (pin.equals("") || !pin.equals(session.getPin())) {
                                 EnterPinWrap.setError("Please enter the correct pin!!");
                                 EnterPin.setText("");
                             } else {
@@ -199,6 +207,35 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                 }
             }
         });
+    }
+
+    @Override    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 10:
+                if (grantResults.length > 0) {
+
+                    boolean sendsms = marshmallowPermissions.checkPermissionForSendSms();
+                    boolean accesscourselocation = marshmallowPermissions.checkPermissionForCoarseLocations();
+                    boolean accessfinelocation = marshmallowPermissions.checkPermissionForLocations();
+
+                    if (sendsms && accesscourselocation && accessfinelocation) {
+                        Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setMessage("You need to give this permission to use the app!")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    public void onClick(final DialogInterface dialog, int id) {
+                                        marshmallowPermissions.requestMultiPermission();
+                                    }
+                                });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                }
+                break;
+        }
     }
 
     private void plotMyResponsibility() {
@@ -313,7 +350,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                         GwaliorGeoQuery.removeAllListeners();
                     removePersonalDetailsListeners();
                     fetchDetailsOfMyResponsibility();
-                    }
+                }
                 plotMyResponsibility();
             }
 
@@ -322,6 +359,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
 
             }
         });
+
         LatLng Gwaliorpos = new LatLng(GwaliorLocation.getLatitude(), GwaliorLocation.getLongitude());
         LatLngBounds Boundary = new LatLngBounds(
                 new LatLng(GwaliorLocation.getLatitude() - 20.00, GwaliorLocation.getLongitude() - 20.00), new LatLng(GwaliorLocation.getLatitude() + 20.00, GwaliorLocation.getLongitude() + 20.00));
@@ -346,12 +384,10 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     // Getting view from the layout file info_window_layout
                     v = getLayoutInflater().inflate(R.layout.custom_info_window, null);
                     PersonalDetails personalDetails;
-                    if(arg0.getTitle().equals(session.getUID()))
-                    {
-                      personalDetails = new PersonalDetails(session.getName(),session.getPhone(),session.getBlood(),session.getAddress(),session.getGender(),session.getAge(),session.getDiseases(),session.getImgurl(),session.getEmail(),session.getUID());
-                    }
-                    else
-                     personalDetails= myResponsibilityDetail.get(arg0.getTitle());
+                    if (arg0.getTitle().equals(session.getUID())) {
+                        personalDetails = new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail(), session.getUID());
+                    } else
+                        personalDetails = myResponsibilityDetail.get(arg0.getTitle());
                     // Getting reference to the TextView to set latitude
                     TextView emailText = (TextView) v.findViewById(R.id.emailText);
                     emailText.setText(personalDetails.getEmail());
@@ -362,7 +398,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                     TextView phoneText = (TextView) v.findViewById(R.id.mobileText);
                     phoneText.setText(personalDetails.getPhone());
 
-                    ImageView profile = (ImageView)v.findViewById(R.id.userPic);
+                    ImageView profile = (ImageView) v.findViewById(R.id.userPic);
                     Glide.with(MapsActivity2.this)
                             .load(personalDetails.getImgurl())
                             .centerCrop()
@@ -409,27 +445,20 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
     @Override
     protected void onStart() {
         super.onStart();
-        checkLocPermissions();
+        if (marshmallowPermissions.checkMultiPermission()) {
+
+            Toast.makeText(MapsActivity2.this, "All Permissions Granted Successfully", Toast.LENGTH_LONG).show();
+
+            //check panic state OR
+            if (session.getShareLocation()) {
+                startLocationService();
+            }
+        } else {
+
+            marshmallowPermissions.requestMultiPermission();
+        }
     }
 
-    private void checkLocPermissions() {
-        coarsePermission = marshmallowPermissions.checkPermissionForCoarseLocations();
-        finePermission = marshmallowPermissions.checkPermissionForLocations();
-        if (!coarsePermission && !finePermission) {
-            if (!coarsePermission) {
-                marshmallowPermissions.requestPermissionForCoarseLocations();
-                coarsePermission = marshmallowPermissions.checkPermissionForCoarseLocations();
-            }
-            if (!finePermission) {
-                marshmallowPermissions.requestPermissionForLocations();
-                finePermission = marshmallowPermissions.checkPermissionForLocations();
-            }
-        }
-        //check panic state OR
-        if (session.getShareLocation()) {
-            startLocationService();
-        }
-    }
 
     private void startLocationService() {
         final LocationManager manager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
@@ -443,7 +472,6 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                             startActivity(intent1);
                             dialog.dismiss();
                         }
-
 
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -506,7 +534,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                         myResponsibilityDetail.put(personalDetails.getId(), personalDetails);
                         if (personalDetails.getPanic()) {
                             Intent intent = new Intent(MapsActivity2.this, PanicMapsActivity.class);
-                            intent.putExtra(myPanicResponsibilityId,personalDetails.getId());
+                            intent.putExtra(myPanicResponsibilityId, personalDetails.getId());
                             startActivity(intent);
                             finish();
                         }
