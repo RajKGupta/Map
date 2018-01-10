@@ -51,7 +51,7 @@ public class UploadContact extends IntentService {
                                 else
                                 {
                                     DBREF.child(guardianNotUser).child(number).child(session.getPhone()).setValue(session.getUID());
-                                    DBREF.child(users).child(session.getUID()).child(emergencyContact).child(number).setValue(number);
+                                    DBREF.child(users).child(session.getUID()).child(emergencyContact).child(number).setValue("name"+x.getDisplayName());
                                 }
                             }
 

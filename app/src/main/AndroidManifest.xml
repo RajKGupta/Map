@@ -18,7 +18,7 @@
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:name=".SaferIndia"
@@ -113,7 +113,14 @@
         <service
             android:name=".services.PanicButton"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".main.ViewGaurdians"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <activity android:name=".main.ViewResponsibility"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

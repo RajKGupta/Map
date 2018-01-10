@@ -149,7 +149,6 @@ public class MarshmallowPermissions {
         ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.SEND_SMS}, SENDSMS_REQUEST_CODE);
     }
 
-
     public boolean checkMultiPermission() {
 
         return checkPermissionForSendSms() && checkPermissionForLocations() && checkPermissionForCoarseLocations();

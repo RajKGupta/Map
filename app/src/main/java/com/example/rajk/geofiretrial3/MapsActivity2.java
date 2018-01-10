@@ -40,6 +40,7 @@ import com.example.rajk.geofiretrial3.main.PanicMapsActivity;
 import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.services.LocServ;
+import com.example.rajk.geofiretrial3.services.PanicButton;
 import com.example.rajk.geofiretrial3.services.SendSMSService;
 import com.example.rajk.geofiretrial3.services.ShakeSensorService;
 import com.firebase.geofire.GeoFire;
@@ -81,8 +82,6 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
     private SharedPreference session;
     Marker mCurrLocationMarker;
     private ToggleButton toggleButton;
-    private MediaPlayer mediaPlayer;
-    private Boolean coarsePermission, finePermission;
     private MarshmallowPermissions marshmallowPermissions;
     private Intent locServiceIntent;
     private Location GwaliorLocation;
@@ -111,7 +110,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         marshmallowPermissions = new MarshmallowPermissions(this);
         if (marshmallowPermissions.checkMultiPermission()) {
 
-            Toast.makeText(MapsActivity2.this, "All Permissions Granted Successfully", Toast.LENGTH_LONG).show();
+            //Toast.makeText(MapsActivity2.this, "All Permissions Granted Successfully", Toast.LENGTH_LONG).show();
 
             //check panic state OR
             if (session.getShareLocation()) {
@@ -158,8 +157,11 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
 
         if (getIntent().hasExtra("service")) {
             toggleButton.setChecked(true);
-
             panicbuttonpressed();
+        }
+
+        if (session.getPanick()) {
+            toggleButton.setChecked(true);
         }
 
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -195,8 +197,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                     toggleButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.circle_bg_on));
                                 }
-                                mediaPlayer.stop();
-                                mediaPlayer.reset();
+                                stopService(new Intent(getApplicationContext(), PanicButton.class));
                                 if (!session.getShareLocation()) {
                                     stopService(locServiceIntent);
                                 }
@@ -209,7 +210,8 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
         });
     }
 
-    @Override    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 10:
                 if (grantResults.length > 0) {
@@ -220,8 +222,10 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
 
                     if (sendsms && accesscourselocation && accessfinelocation) {
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
-                    }
-                    else {
+                        if (session.getShareLocation()) {
+                            startLocationService();
+                        }
+                    } else {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                         builder.setMessage("You need to give this permission to use the app!")
                                 .setCancelable(false)
@@ -413,34 +417,15 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
             }
         });
         mMap.getUiSettings().setMapToolbarEnabled(false);
-
     }
 
     private void panicbuttonpressed() {
-        DBREF.child(users).child(session.getUID()).child("panic").setValue(true);
-        session.setPanick(true);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             toggleButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.circle_bg_off));
         }
-        setMediaVolumeMax();
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.sample);
-        mediaPlayer.setLooping(true);
-        mediaPlayer.start();
-        if (!marshmallowPermissions.checkPermissionForSendSms()) {
-            marshmallowPermissions.requestPermissionForSendSms();
-        } else {
-            startLocationService();
-            startService(new Intent(getApplicationContext(), SendSMSService.class));
-        }
-    }
 
-    private void setMediaVolumeMax() {
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        int maxVolume = audioManager.getStreamMaxVolume(3);
-        audioManager.setStreamVolume(3, maxVolume, 1);
+        startService(new Intent(getApplicationContext(), PanicButton.class));
     }
-
 
     @Override
     protected void onStart() {
@@ -458,7 +443,6 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback {
             marshmallowPermissions.requestMultiPermission();
         }
     }
-
 
     private void startLocationService() {
         final LocationManager manager = (LocationManager) getSystemService(this.LOCATION_SERVICE);

@@ -73,19 +73,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.location) {
-            //TODO open location directly
-
-            //gpsON  = CheckGpsStatus();
-            String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-            Toast.makeText(this, provider, Toast.LENGTH_SHORT).show();
-
-            if (!provider.contains("gps")) { //if gps is disabled
-
-            } else { //if gps is enabled
-
-            }
-        } else if (id == R.id.alarm) {
+        if (id == R.id.alarm) {
             if (alarm) {
                 setMediaVolumeMax();
                 mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.scream);
@@ -180,6 +168,18 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         } else if (id == R.id.shareapp) {
+
+        }
+        else if (id == R.id.viewgardians) {
+
+            Intent intent = new Intent(MainActivity.this, ViewGaurdians.class);
+            startActivity(intent);
+
+        }
+        else if (id == R.id.viewresponsibilities) {
+
+            Intent intent = new Intent(MainActivity.this, ViewResponsibility.class);
+            startActivity(intent);
 
         }
 
