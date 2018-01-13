@@ -56,7 +56,7 @@ public class PickContact2 extends AppCompatActivity {
                 dialog.hide();
                 Toast.makeText(PickContact2.this,"The selected contacts were added to the Guardians List.",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(PickContact2.this, MapsActivity2.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 finish();
             } else if(resultCode == RESULT_CANCELED){
