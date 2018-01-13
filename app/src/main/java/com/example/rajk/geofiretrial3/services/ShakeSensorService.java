@@ -47,7 +47,7 @@ public class ShakeSensorService extends Service {
                     Intent in = new Intent(getApplicationContext(), LocServ.class);
                     startService(in);
                     Intent intent = new Intent(getApplicationContext(), MapsActivity2.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED +
                             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD +
                             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON +

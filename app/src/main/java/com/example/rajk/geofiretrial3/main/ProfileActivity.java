@@ -23,13 +23,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
+import static com.example.rajk.geofiretrial3.SaferIndia.addedGuardian;
 import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
 import static com.example.rajk.geofiretrial3.SaferIndia.getTimeStamp;
 import static com.example.rajk.geofiretrial3.SaferIndia.guardianNotUser;
 import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
 import static com.example.rajk.geofiretrial3.SaferIndia.phoneVsId;
+import static com.example.rajk.geofiretrial3.SaferIndia.sendNotif;
 import static com.example.rajk.geofiretrial3.SaferIndia.userSession;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
+import static com.example.rajk.geofiretrial3.main.LoginActivity.session;
 
 public class ProfileActivity extends AppCompatActivity {
     String name, phone, blood, address, gender, age, diseases, imgurl;
@@ -86,8 +89,22 @@ public class ProfileActivity extends AppCompatActivity {
                                 {
                                     DBREF.child(users).child(session.getUID()).child(myResponsibility).child(ds.getKey()).setValue(ds.getValue(String.class));
                                     DBREF.child(users).child(ds.getValue(String.class)).child(emergencyContact).child(session.getPhone()).setValue(session.getUID());
-                                    goToNextActivity();
+                                    DBREF.child(userSession).child(ds.getValue(String.class)).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            Online online = dataSnapshot.getValue(Online.class);
+                                            sendNotif(online.getId(),session.getUID(),addedGuardian,online.getName()+" added you as Guardian");
+                                            }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
                                 }
+                                DBREF.child(guardianNotUser).child(session.getPhone()).removeValue();
+                                goToNextActivity();
+
                             }
                             else {
                                 goToNextActivity();

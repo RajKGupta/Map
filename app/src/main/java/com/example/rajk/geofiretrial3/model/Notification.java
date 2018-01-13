@@ -5,25 +5,17 @@ package com.example.rajk.geofiretrial3.model;
  */
 
 public class Notification {
-    private String id,timestamp,type,senderId,receiverId,receiverFCMToken,content,taskId;
+    private String notifId,timestamp,type,senderId,receiverId,receiverFCMToken,content;
 
     public Notification() {
     }
 
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
     public String getId() {
-        return id;
+        return notifId;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.notifId = id;
     }
 
     public String getTimestamp() {
@@ -74,14 +66,13 @@ public class Notification {
         this.content = content;
     }
 
-    public Notification(String id, String timestamp, String type, String senderId, String receiverId, String receiverFCMToken, String content, String TaskId) {
-        this.id = id;
+    public Notification(String id, String timestamp, String type, String senderId, String receiverId, String receiverFCMToken, String content) {
+        this.notifId = id;
         this.timestamp = timestamp;
         this.type = type;
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.receiverFCMToken = receiverFCMToken;
         this.content = content;
-        this.taskId = TaskId;
     }
 }

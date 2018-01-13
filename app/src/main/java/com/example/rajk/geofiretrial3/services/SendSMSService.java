@@ -17,7 +17,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.net.URL;
 
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
+import static com.example.rajk.geofiretrial3.SaferIndia.IPanicked;
+import static com.example.rajk.geofiretrial3.SaferIndia.Safe;
 import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
+import static com.example.rajk.geofiretrial3.SaferIndia.name;
+import static com.example.rajk.geofiretrial3.SaferIndia.sendNotif;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
 
@@ -32,9 +36,17 @@ public class SendSMSService extends IntentService {
         if (intent != null) {
             ///SENDING SMS TO ALL GUARDIANS CALL THIS SERVICE IN CASE OF EMERGENCY
             session = new SharedPreference(this);
-            final String msg  = "EMERGENCY!!! I need your help. Track me here - feelsafe-9b333.firebaseapp.com/?uid="+session.getUID();
+            String emmsg;
+            if(session.getPanick()) {
+                emmsg = "EMERGENCY!!! "+session.getName()+" just panicked and needs your help. Track me here - feelsafe-9b333.firebaseapp.com/?uid=" + session.getUID();
+            }
+            else
+            {
+                emmsg  = session.getName()+" has arrived safely now. No need to worry. Thanks for your concern.";
+            }
             if(checkPermissionForSendSms())
             {
+                final String msg = emmsg;
                 DBREF.child(users).child(session.getUID()).child(emergencyContact).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -42,9 +54,12 @@ public class SendSMSService extends IntentService {
                         {
                             String uid = ds.getValue(String.class);
                             String phone = ds.getKey();
-                            if(uid.length()>10)
+                            if(!uid.substring(0,4).equals(name))
                             {
-                                //TODO send notifications to this UID
+                                if(session.getPanick())
+                                sendNotif(session.getUID(),uid,IPanicked,"EMERGENCY!!! "+session.getName()+" just panicked and needs your help.");
+                                else
+                                sendNotif(session.getUID(),uid,Safe,msg);
                             }
                             sendSMS(phone,msg);
                         }

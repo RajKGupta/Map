@@ -151,7 +151,7 @@ public class MarshmallowPermissions {
 
     public boolean checkMultiPermission() {
 
-        return checkPermissionForSendSms() && checkPermissionForLocations() && checkPermissionForCoarseLocations();
+        return checkPermissionForSendSms() && checkPermissionForLocations() && checkPermissionForCoarseLocations() && checkPermissionForContacts();
     }
 
     public void requestMultiPermission() {
@@ -159,7 +159,8 @@ public class MarshmallowPermissions {
                 {
                         Manifest.permission.SEND_SMS,
                         Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.READ_CONTACTS
                 }, MULTI_REQUEST_CODE);
     }
 

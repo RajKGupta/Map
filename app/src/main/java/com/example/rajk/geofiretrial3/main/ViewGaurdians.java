@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
+import com.example.rajk.geofiretrial3.SaferIndia;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.model.gaurdians_and_responsibilities;
 import com.google.firebase.database.ChildEventListener;
@@ -61,7 +62,7 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
                     for (DataSnapshot ds : dataSnapshot.getChildren() ) {
                         String installed = ds.getValue(String.class);
                         String name = "", id = "";
-                        if (installed.substring(0, 4).equals("name")) {
+                        if (installed.substring(0, 4).equals(SaferIndia.name)) {
                             name = installed.substring(4);
                         } else {
                             id = installed;
