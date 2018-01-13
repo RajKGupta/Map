@@ -9,15 +9,12 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.SaferIndia;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.model.gaurdians_and_responsibilities;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -42,6 +39,9 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
         rec_contact_list = (RecyclerView) findViewById(R.id.contact_list);
         session = new SharedPreference(this);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         gaundian_adapter = new gaundian_adapter(contact_list, getApplicationContext(), this);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         rec_contact_list.setLayoutManager(linearLayoutManager);
@@ -50,6 +50,12 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
         rec_contact_list.setAdapter(gaundian_adapter);
 
         LoadData();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     void LoadData()
@@ -73,7 +79,6 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
                     }
                     gaundian_adapter.notifyDataSetChanged();
                 }
-
             }
 
             @Override
@@ -93,10 +98,14 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
     }
 
     @Override
+    public void onshareclicked(int position) {
+
+    }
+
+    @Override
     public void onBackPressed()
     {
         super.onBackPressed();
         finish();
     }
-
 }

@@ -67,8 +67,6 @@ public class PickContact2 extends AppCompatActivity {
     }
     private  void call()
     {
-
-
         new MultiContactPicker.Builder(PickContact2.this) //Activity/fragment context
                 .theme(R.style.AppTheme_NoActionBar) //Optional - default: MultiContactPicker.Azure
                 .hideScrollbar(false) //Optional - default: false

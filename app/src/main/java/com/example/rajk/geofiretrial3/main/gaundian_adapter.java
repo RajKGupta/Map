@@ -135,6 +135,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
         LinearLayout employee_row;
         ImageButton callme;
         ImageView imgProfile;
+        LinearLayout shareifnotuser;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -146,12 +147,13 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             employee_row = (LinearLayout) itemView.findViewById(R.id.employee_row);
             imgProfile = (ImageView) itemView.findViewById(R.id.icon_profile);
             callme = (ImageButton) itemView.findViewById(R.id.callme);
+            shareifnotuser = (LinearLayout) itemView.findViewById(R.id.shareifnotuser);
         }
     }
 
     public interface phonebook_adapterListener {
         void onCALLMEclicked(int position);
-
+        void onshareclicked(int position);
     }
 
     private void applyClickEvents(MyViewHolder holder, final int position) {
@@ -160,6 +162,13 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             @Override
             public void onClick(View v) {
                 listener.onCALLMEclicked(position);
+            }
+        });
+
+        holder.shareifnotuser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onshareclicked(position);
             }
         });
 

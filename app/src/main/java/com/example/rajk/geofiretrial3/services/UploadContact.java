@@ -3,7 +3,6 @@ package com.example.rajk.geofiretrial3.services;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.example.rajk.geofiretrial3.model.Notification;
 import com.example.rajk.geofiretrial3.model.Online;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,13 +16,9 @@ import static com.example.rajk.geofiretrial3.SaferIndia.AppName;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.InviteSMSMessage;
 import static com.example.rajk.geofiretrial3.SaferIndia.InviteSMSNumber;
-import static com.example.rajk.geofiretrial3.SaferIndia.Notification;
 import static com.example.rajk.geofiretrial3.SaferIndia.addedGuardian;
 import static com.example.rajk.geofiretrial3.SaferIndia.contactList;
 import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
-import static com.example.rajk.geofiretrial3.SaferIndia.getReverseTimeStampInMs;
-import static com.example.rajk.geofiretrial3.SaferIndia.getTimeStamp;
-import static com.example.rajk.geofiretrial3.SaferIndia.getTimeStampInMs;
 import static com.example.rajk.geofiretrial3.SaferIndia.guardianNotUser;
 import static com.example.rajk.geofiretrial3.SaferIndia.invite;
 import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
@@ -34,9 +29,7 @@ import static com.example.rajk.geofiretrial3.SaferIndia.userSession;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 import static com.example.rajk.geofiretrial3.main.LoginActivity.session;
 
-
 public class UploadContact extends IntentService {
-
 
     public UploadContact() {
         super("UploadContact");
@@ -94,13 +87,10 @@ public class UploadContact extends IntentService {
 
                             }
                         });
-
                     }
                 }
             }
 
         }
     }
-
-
 }
