@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.NavigationView;
@@ -27,6 +28,7 @@ import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.step2.PickContact;
 
+import static com.example.rajk.geofiretrial3.SaferIndia.AppLink;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
@@ -168,6 +170,22 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         } else if (id == R.id.shareapp) {
+            Intent smsIntent = new Intent(Intent.ACTION_SEND);
+            String content = "Hi I am building my Safety Network on FeelSafe App. Join me now. Download FeelSafe now from "+AppLink;
+            smsIntent.setData(Uri.parse("smsto:"));
+            smsIntent.setType("text/plain");
+            smsIntent.putExtra("sms_body"  , content);
+            smsIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Share");
+            smsIntent.putExtra(android.content.Intent.EXTRA_TEXT,content );
+            smsIntent.putExtra("sms_body"  , content );
+            try {
+                startActivity(Intent.createChooser(smsIntent,"Share"));
+            }
+            catch (android.content.ActivityNotFoundException ex) {
+                Toast.makeText(this,
+                        "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
+            }
+
 
         }
         else if (id == R.id.viewgardians) {

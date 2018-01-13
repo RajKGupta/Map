@@ -545,7 +545,7 @@ private void callEverything()
                         if (personalDetails.getPanic()) {
 //                            toggleButton.setVisibility(View.GONE);
                             Intent intent = new Intent(MapsActivity2.this, PanicMapsActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent.putExtra(myPanicResponsibilityId, personalDetails.getId());
                             stopService(locServiceIntent);
                             startActivity(intent);

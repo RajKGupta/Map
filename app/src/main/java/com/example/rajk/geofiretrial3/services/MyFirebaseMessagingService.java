@@ -17,6 +17,7 @@ import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.SaferIndia;
 import com.example.rajk.geofiretrial3.main.PanicMapsActivity;
+import com.example.rajk.geofiretrial3.main.ViewGaurdians;
 import com.example.rajk.geofiretrial3.model.Online;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,6 +37,7 @@ import static com.example.rajk.geofiretrial3.SaferIndia.invite;
 import static com.example.rajk.geofiretrial3.SaferIndia.myPanicResponsibilityId;
 import static com.example.rajk.geofiretrial3.SaferIndia.panick;
 import static com.example.rajk.geofiretrial3.SaferIndia.share;
+import static com.example.rajk.geofiretrial3.SaferIndia.soundOff;
 import static com.example.rajk.geofiretrial3.SaferIndia.type;
 import static com.example.rajk.geofiretrial3.SaferIndia.userSession;
 
@@ -50,7 +52,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (body != null && senderuid != null && id!=null) {
                 if (type.equals(IPanicked)) {
                     sendPanicNotification(body,senderuid,id);
-                } else {
+                }
+                else if(type.equals(invite))
+                {
+                    sendInviteNotification(body,senderuid,id);
+                }
+                else {
                     sendGeneralNotification(body,senderuid,id,type);
                 }
             }
@@ -58,8 +65,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void sendGeneralNotification(String body, String senderuid, String id,String type) {
         Intent intent = new Intent(this, MapsActivity2.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        String notifid = id.substring(8);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, Integer.parseInt(notifid), intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -75,13 +83,35 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             .setContentIntent(pendingIntent);
                             NotificationManager notificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    String notifid = id.substring(8);
                     if (type.equals(Safe) )
                     {
                         notificationManager.cancelAll();
+                        //TODO stopService() of sound
                     }
                     notificationManager.notify(Integer.parseInt(notifid) /* ID of notification */, notificationBuilder.build());
                 }
+    private void sendInviteNotification(String body, String senderuid, String id) {
+        Intent intent = new Intent(this, ViewGaurdians.class);
+        intent.putExtra(share,true);
+        String notifid = id.substring(8);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this,Integer.parseInt(notifid), intent,
+                PendingIntent.FLAG_ONE_SHOT);
+        final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(MyFirebaseMessagingService.this)
+                .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_launcher))
+                .setContentTitle(AppName)
+                .setContentText(body)
+                .setAutoCancel(true)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSound(defaultSoundUri)
+                .setContentIntent(pendingIntent);
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(Integer.parseInt(notifid) /* ID of notification */, notificationBuilder.build());
+    }
+
 
 
 
@@ -101,18 +131,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent = new Intent(this, PanicMapsActivity.class);
         intent.putExtra(myPanicResponsibilityId,senderuid);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(soundOff,true);
 
         Intent shareIntent = new Intent(this, PanicMapsActivity.class);
         shareIntent.putExtra(myPanicResponsibilityId,senderuid);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
         shareIntent.putExtra(share,true);
         shareIntent.putExtra("body",body);
+        intent.putExtra(soundOff,true);
 
         final String notifId  = id.substring(10);
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, Integer.parseInt(notifId), intent,
-                PendingIntent.FLAG_ONE_SHOT);
-        final PendingIntent pendingIntentShare = PendingIntent.getActivity(this, Integer.parseInt(notifId)+1, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        final PendingIntent pendingIntentShare = PendingIntent.getActivity(this, Integer.parseInt(notifId)+1, shareIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -127,11 +159,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             .setSound(defaultSoundUri)
                             .setContentIntent(pendingIntent)
                             .addAction(R.drawable.ic_location_grey,"TRACK", pendingIntent)
-                            .addAction(R.drawable.ic_share_black_24dp,"SHARE", pendingIntentShare);
+                            .addAction(R.drawable.ic_share_black_24dp,"SHARE", pendingIntentShare)
+                            .addAction(R.drawable.ic_close_grey,"SOUND OFF", pendingIntent);
                     final NotificationManager notificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Notification notification = notificationBuilder.build();
             notificationManager.notify(Integer.parseInt(notifId), notification);
+            //TODO start service for sound
 
 
         final DatabaseReference panicRef = DBREF.child(SaferIndia.users).child(senderuid).child(panick);

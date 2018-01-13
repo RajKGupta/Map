@@ -61,6 +61,7 @@ public class SaferIndia extends android.support.multidex.MultiDexApplication {
     public static String Safe = "Safe";
     public static String removeGuardian = "removeGuardian";
     public static String share="share";
+    public static String soundOff = "soundOff";
 
 
     public static String type = "type";

@@ -65,6 +65,7 @@ import static com.example.rajk.geofiretrial3.SaferIndia.myPanicResponsibilityId;
 import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
 import static com.example.rajk.geofiretrial3.SaferIndia.panick;
 import static com.example.rajk.geofiretrial3.SaferIndia.share;
+import static com.example.rajk.geofiretrial3.SaferIndia.soundOff;
 import static com.example.rajk.geofiretrial3.SaferIndia.userLoction;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
@@ -142,6 +143,11 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
                         "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
             }
 
+        }
+        Boolean ifSoundOff = intent.getBooleanExtra(soundOff,false);
+        if(ifSoundOff)
+        {
+            //TODO stopService() of sound
         }
 //      Going back to previous activity when panic state off
         myResponsibilityPanicStateReference = DBREF.child(users).child(myPanicResponsibilityIdString).child(panick).getRef();
@@ -458,7 +464,7 @@ private void toggleLocation(LatLng latLng,String id)
     protected void onDestroy() {
         if(gpsReceiver!=null)
             unregisterReceiver(gpsReceiver);
-
+        //TODO stop service of sound
         super.onDestroy();
         if(GwaliorGeoQuery!=null)
             GwaliorGeoQuery.removeAllListeners();

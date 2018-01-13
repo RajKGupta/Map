@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
+import static com.example.rajk.geofiretrial3.SaferIndia.share;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
 public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter.phonebook_adapterListener{
@@ -33,12 +34,13 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
     gaundian_adapter gaundian_adapter;
     LinearLayoutManager linearLayoutManager;
     public SharedPreference session;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_gaurdians);
-
+        intent = getIntent();
         rec_contact_list = (RecyclerView) findViewById(R.id.contact_list);
         session = new SharedPreference(this);
 
@@ -95,8 +97,16 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
     @Override
     public void onBackPressed()
     {
-        super.onBackPressed();
-        finish();
+        if(intent.getBooleanExtra(share,false))
+        {
+            Intent intent = new Intent(this,MapsActivity2.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else {
+            super.onBackPressed();
+            finish();
+        }
     }
 
 }
