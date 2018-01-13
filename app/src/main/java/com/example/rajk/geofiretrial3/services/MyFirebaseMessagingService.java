@@ -42,6 +42,7 @@ import static com.example.rajk.geofiretrial3.SaferIndia.type;
 import static com.example.rajk.geofiretrial3.SaferIndia.userSession;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
+    private Intent helpSoundIntent = new Intent(getApplicationContext(),HelpSound.class);
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage)
     {
@@ -78,7 +79,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             .setContentText(body)
                             .setAutoCancel(true)
                             .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.mipmap.ic_notific_small)
                             .setSound(defaultSoundUri)
                             .setContentIntent(pendingIntent);
                             NotificationManager notificationManager =
@@ -86,7 +87,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     if (type.equals(Safe) )
                     {
                         notificationManager.cancelAll();
-                        //TODO stopService() of sound
+                        stopService(helpSoundIntent);
                     }
                     notificationManager.notify(Integer.parseInt(notifid) /* ID of notification */, notificationBuilder.build());
                 }
@@ -99,7 +100,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_ONE_SHOT);
         final Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(MyFirebaseMessagingService.this)
-                .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_launcher))
+                .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_notific_small))
                 .setContentTitle(AppName)
                 .setContentText(body)
                 .setAutoCancel(true)
@@ -150,7 +151,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                     final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(MyFirebaseMessagingService.this)
                             .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_launcher))
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.mipmap.ic_notific_small)
                             .setContentTitle("Emergency!! Help your friend")
                             .setContentText(body)
                             .setOngoing(true)
@@ -165,7 +166,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Notification notification = notificationBuilder.build();
             notificationManager.notify(Integer.parseInt(notifId), notification);
-            //TODO start service for sound
+            startService(helpSoundIntent);
 
 
         final DatabaseReference panicRef = DBREF.child(SaferIndia.users).child(senderuid).child(panick);

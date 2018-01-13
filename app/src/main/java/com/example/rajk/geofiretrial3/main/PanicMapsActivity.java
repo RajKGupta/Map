@@ -29,6 +29,7 @@ import com.example.rajk.geofiretrial3.helper.CircleTransform;
 import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
 import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
+import com.example.rajk.geofiretrial3.services.HelpSound;
 import com.example.rajk.geofiretrial3.services.LocServ;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -147,7 +148,7 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
         Boolean ifSoundOff = intent.getBooleanExtra(soundOff,false);
         if(ifSoundOff)
         {
-            //TODO stopService() of sound
+            stopService(new Intent(getApplicationContext(), HelpSound.class));
         }
 //      Going back to previous activity when panic state off
         myResponsibilityPanicStateReference = DBREF.child(users).child(myPanicResponsibilityIdString).child(panick).getRef();
@@ -464,7 +465,6 @@ private void toggleLocation(LatLng latLng,String id)
     protected void onDestroy() {
         if(gpsReceiver!=null)
             unregisterReceiver(gpsReceiver);
-        //TODO stop service of sound
         super.onDestroy();
         if(GwaliorGeoQuery!=null)
             GwaliorGeoQuery.removeAllListeners();
