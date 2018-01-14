@@ -69,11 +69,6 @@
         <activity
             android:name=".main.LoginActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".main.ProfileActivity"
@@ -117,14 +112,22 @@
 
         <activity
             android:name=".main.ViewGaurdians"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".main.ViewResponsibility"
             android:screenOrientation="portrait" />
 
         <service
             android:name=".services.InviteSMS"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".design.FirstSlider">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

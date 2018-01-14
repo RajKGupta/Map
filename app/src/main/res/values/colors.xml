@@ -19,4 +19,27 @@
     <color name="backgroundColor">#c8ffbd39</color>
     <color name="backgroundColorLight">#29f6303f</color>
 
+    <color name="dark_dot_active_screen1">#e57373</color>
+    <color name="dark_dot_active_screen2">#a6576d</color>
+    <color name="dark_dot_active_screen3">#6C5B7B</color>
+    <color name="dark_dot_active_screen4">#355C7D</color>
+
+    <color name="light_dot_active_screen1">#99E57373</color>
+    <color name="light_dot_active_screen2">#99C06C84</color>
+    <color name="light_dot_active_screen3">#996C5B7B</color>
+    <color name="light_dot_active_screen4">#99355C7D</color>
+
+    <array name="dotactive">
+        <item>@color/light_dot_active_screen1</item>
+        <item>@color/light_dot_active_screen2</item>
+        <item>@color/light_dot_active_screen3</item>
+        <item>@color/light_dot_active_screen4</item>
+    </array>
+
+    <array name="dotinactive">
+        <item>@color/dark_dot_active_screen1</item>
+        <item>@color/dark_dot_active_screen2</item>
+        <item>@color/dark_dot_active_screen3</item>
+        <item>@color/dark_dot_active_screen4</item>
+    </array>
 </resources>

@@ -8,7 +8,9 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
+import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.SaferIndia;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
@@ -19,6 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+import static com.example.rajk.geofiretrial3.SaferIndia.AppLink;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
 import static com.example.rajk.geofiretrial3.SaferIndia.share;
@@ -101,7 +104,21 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
 
     @Override
     public void onshareclicked(int position) {
-
+        Intent smsIntent = new Intent(Intent.ACTION_SEND);
+        String content = "Hi I am building my Safety Network on FeelSafe App. Join me now. Download FeelSafe now from "+AppLink;
+        smsIntent.setData(Uri.parse("smsto:"));
+        smsIntent.setType("text/plain");
+        smsIntent.putExtra("sms_body"  , content);
+        smsIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Share");
+        smsIntent.putExtra(android.content.Intent.EXTRA_TEXT,content );
+        smsIntent.putExtra("sms_body"  , content );
+        try {
+            startActivity(Intent.createChooser(smsIntent,"Share"));
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,
+                    "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

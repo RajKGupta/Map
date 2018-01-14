@@ -24,6 +24,17 @@ public class SharedPreference {
         editor = pref.edit();
     }
 
+    public void setfirst(Boolean isfirst)
+    {
+        editor.putBoolean("check",isfirst);
+        editor.commit();
+    }
+
+    public Boolean check()
+    {
+        return pref.getBoolean("check",true);
+    }
+
     public String getUID() {
         return pref.getString(SaferIndia.UID, "");
     }

@@ -64,6 +64,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             String caps = gar.getName().toUpperCase();
             holder.icon_text.setText(caps.charAt(0) + "");
             holder.email.setVisibility(View.GONE);
+            holder.shareifnotuser.setVisibility(View.VISIBLE);
         }
         else
         {
@@ -77,6 +78,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
                         holder.email.setVisibility(View.VISIBLE);
                         holder.Name.setText(gard.getName());
                         applyProfilePicture(holder, gard.getImgurl());
+                        holder.shareifnotuser.setVisibility(View.INVISIBLE);
                     }
 
                 }

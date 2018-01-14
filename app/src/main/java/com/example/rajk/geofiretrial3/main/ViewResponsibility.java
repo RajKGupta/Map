@@ -90,6 +90,11 @@ public class ViewResponsibility extends AppCompatActivity implements gaundian_ad
     }
 
     @Override
+    public void onshareclicked(int position) {
+
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish();
