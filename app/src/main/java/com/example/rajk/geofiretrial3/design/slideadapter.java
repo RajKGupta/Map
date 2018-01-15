@@ -11,10 +11,6 @@ import android.widget.TextView;
 
 import com.example.rajk.geofiretrial3.R;
 
-/**
- * Created by Soumya on 1/14/2018.
- */
-
 public class slideadapter extends PagerAdapter {
     Context context;
     LayoutInflater inflater;
@@ -49,8 +45,8 @@ public class slideadapter extends PagerAdapter {
         inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.slide1, container, false);
         LinearLayout layoutslide = (LinearLayout) view.findViewById(R.id.slide_layout);
-        TextView text = (TextView) view.findViewById(R.id.text);
-        layoutslide.setBackgroundColor(bgcolors[position]);
+        TextView text = (TextView) view.findViewById(R.id.slidetext);
+        //layoutslide.setBackgroundColor(bgcolors[position]);
         text.setText(textlist[position]);
         container.addView(view);
         return view;

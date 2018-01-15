@@ -2,6 +2,7 @@ package com.example.rajk.geofiretrial3.services;
 
 import android.util.Log;
 
+import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
@@ -12,7 +13,7 @@ import static com.example.rajk.geofiretrial3.main.LoginActivity.session;
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     private static final String TAG = "MyFirebaseIIDService";
-
+    SharedPreference session;
     /**
      * Called if InstanceID token is updated. This may occur if the security of
      * the previous token had been compromised. Note that this is called when the InstanceID token
@@ -24,6 +25,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         // Get updated InstanceID token.
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "Refreshed token: " + refreshedToken);
+        session = new SharedPreference(getApplicationContext());
 
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the

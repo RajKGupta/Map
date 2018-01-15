@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#f6303f</color>
-    <color name="colorPrimaryDark">#ac212c</color>
-    <color name="colorAccent">#c411a1</color>
+    <color name="colorPrimary">#355c7d</color>
+    <color name="colorPrimaryDark">#355c7d</color>
+    <color name="colorAccent">#ffab91</color>
     <color name="from">#000000</color>
     <color name="black">#000000</color>
     <color name="subject">#111111</color>
@@ -30,10 +30,10 @@
     <color name="light_dot_active_screen4">#99355C7D</color>
 
     <array name="dotactive">
-        <item>@color/light_dot_active_screen1</item>
-        <item>@color/light_dot_active_screen2</item>
-        <item>@color/light_dot_active_screen3</item>
-        <item>@color/light_dot_active_screen4</item>
+        <item>@color/white</item>
+        <item>@color/white</item>
+        <item>@color/white</item>
+        <item>@color/white</item>
     </array>
 
     <array name="dotinactive">

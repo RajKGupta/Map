@@ -20,9 +20,7 @@
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp"
-        ></LinearLayout>
-
+        android:layout_marginBottom="25dp"/>
 
     <View
         android:layout_width="match_parent"
@@ -39,16 +37,16 @@
         android:layout_alignParentRight="true"
         android:background="@null"
         android:textColor="@color/white"
-        android:text="Next"
-        />
+        android:text="Next"/>
+
     <Button
         android:id="@+id/skip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
         android:background="@null"
         android:textColor="@color/white"
-        android:text="Skip"
-        />
+        android:text="Skip" />
+
 </RelativeLayout>
