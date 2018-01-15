@@ -6,8 +6,8 @@ package com.example.rajk.geofiretrial3;
 // iv) start location service
 // v) start SendSMSService
 // TODO 3 Decide what to do If somebody in myResponsibilitylist activates panic mode I have added the check already see the TODO line 455
-//TODO 4 We are removing the shareLocationFunctionality
-
+// TODO 4 We are removing the shareLocationFunctionality
+// TODO 5 Provide app link
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;

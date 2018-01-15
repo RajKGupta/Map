@@ -171,11 +171,11 @@ public class MainActivity extends AppCompatActivity
             });
         } else if (id == R.id.shareapp) {
             Intent smsIntent = new Intent(Intent.ACTION_SEND);
-            String content = "Hi I am building my Safety Network on FeelSafe App. Join me now. Download FeelSafe now from "+AppLink;
+            String content = "Hi I am building my Safety Network on FeelSafe App. Join me now. Download FeelSafe from "+AppLink;
             smsIntent.setData(Uri.parse("smsto:"));
             smsIntent.setType("text/plain");
             smsIntent.putExtra("sms_body"  , content);
-            smsIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Share");
+            smsIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Join me on FeelSafe");
             smsIntent.putExtra(android.content.Intent.EXTRA_TEXT,content );
             smsIntent.putExtra("sms_body"  , content );
             try {
@@ -185,8 +185,6 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(this,
                         "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
             }
-
-
         }
         else if (id == R.id.viewgardians) {
 

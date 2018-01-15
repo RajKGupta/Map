@@ -57,7 +57,7 @@ public class SendSMSService extends IntentService {
                             if(!uid.substring(0,4).equals(name))
                             {
                                 if(session.getPanick())
-                                sendNotif(session.getUID(),uid,IPanicked,"EMERGENCY!!! "+session.getName()+" just panicked and needs your help.");
+                                sendNotif(session.getUID(),uid,IPanicked,msg);
                                 else
                                 sendNotif(session.getUID(),uid,Safe,msg);
                             }

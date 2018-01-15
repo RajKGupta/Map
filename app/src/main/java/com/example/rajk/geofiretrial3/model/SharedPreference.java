@@ -125,7 +125,7 @@ public class SharedPreference {
         editor.commit();
     }
 
-    public void setSharedPreference(String name, String phone, String blood, String address, String gender, String age, String diseases, String imgurl, String email, String pin) {
+    public void setSharedPreference(String name, String phone, String blood, String address, String gender, String age, String diseases, String imgurl, String email, String pin,Boolean panic) {
         editor.putString(SaferIndia.name,name);
         editor.putString(SaferIndia.phone,phone);
         editor.putString(SaferIndia.blood,blood);

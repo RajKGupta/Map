@@ -8,6 +8,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.rajk.geofiretrial3.MapsActivity2;
 import com.example.rajk.geofiretrial3.R;
@@ -22,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+import static com.example.rajk.geofiretrial3.SaferIndia.AppLink;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
 import static com.example.rajk.geofiretrial3.SaferIndia.share;
@@ -92,6 +95,27 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
         Intent callIntent = new Intent(Intent.ACTION_DIAL);
         callIntent.setData(Uri.parse("tel:" + num));
         startActivity(callIntent);
+    }
+
+    @Override
+    public void onShareButtonClicked(int posititon,String number) {
+        Intent smsIntent = new Intent(Intent.ACTION_SEND);
+        smsIntent.setData(Uri.parse("smsto:"));
+        String content = "Hi "+session.getName()+" added you in their Security Network. Join them by downloading FeelSafe App "+AppLink;
+        smsIntent.setType("text/plain");
+        smsIntent.putExtra("address"  ,number);
+        smsIntent.putExtra("sms_body"  , content);
+        smsIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Join me on FeelSafe");
+        smsIntent.putExtra(android.content.Intent.EXTRA_TEXT,content );
+
+        try {
+            startActivity(Intent.createChooser(smsIntent,"Share"));
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(ViewGaurdians.this,
+                    "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override

@@ -1,5 +1,4 @@
 package com.example.rajk.geofiretrial3.main;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -11,28 +10,19 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.helper.CircleTransform;
-import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.gaurdians_and_responsibilities;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
-import static com.example.rajk.geofiretrial3.SaferIndia.emergencyContact;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
-import static com.example.rajk.geofiretrial3.main.LoginActivity.session;
 
-/**
- * Created by Soumya on 1/9/2018.
- */
 
 public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyViewHolder> {
     List<gaurdians_and_responsibilities> list = new ArrayList<>();
@@ -56,7 +46,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
         gaurdians_and_responsibilities gar = list.get(position);
-
+        holder.shareButton.setVisibility(View.GONE);
         holder.contact.setText(gar.getPhone());
         if (gar.getId().equals(""))
         {
@@ -64,6 +54,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             String caps = gar.getName().toUpperCase();
             holder.icon_text.setText(caps.charAt(0) + "");
             holder.email.setVisibility(View.GONE);
+            holder.shareButton.setVisibility(View.VISIBLE);
         }
         else
         {
@@ -134,7 +125,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
         TextView Name, icon_text, contact, email;
         LinearLayout employee_row;
         ImageButton callme;
-        ImageView imgProfile;
+        ImageView imgProfile,shareButton;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -146,20 +137,28 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             employee_row = (LinearLayout) itemView.findViewById(R.id.employee_row);
             imgProfile = (ImageView) itemView.findViewById(R.id.icon_profile);
             callme = (ImageButton) itemView.findViewById(R.id.callme);
+            shareButton = (ImageButton)itemView.findViewById(R.id.shareButton);
         }
     }
 
     public interface phonebook_adapterListener {
         void onCALLMEclicked(int position);
+        void onShareButtonClicked(int posititon,String number);
 
     }
 
-    private void applyClickEvents(MyViewHolder holder, final int position) {
+    private void applyClickEvents(final MyViewHolder holder, final int position) {
 
         holder.callme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onCALLMEclicked(position);
+            }
+        });
+        holder.shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onShareButtonClicked(position,holder.contact.getText().toString());
             }
         });
 

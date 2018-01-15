@@ -121,7 +121,7 @@ public class ViewProfile extends AppCompatActivity {
                         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(address) || TextUtils.isEmpty(gender) || TextUtils.isEmpty(age) || TextUtils.isEmpty(blood) || TextUtils.isEmpty(diseases)) {
                             Toast.makeText(ViewProfile.this, "Fill in all the details", Toast.LENGTH_SHORT).show();
                         } else {
-                            session.setSharedPreference(name, session.getPhone(), blood, address, gender, age, diseases, session.getImgurl(), session.getEmail(), session.getPin());
+                            session.setSharedPreference(name, session.getPhone(), blood, address, gender, age, diseases, session.getImgurl(), session.getEmail(), session.getPin(),session.getPanick());
                             DBREF.child(users).child(session.getUID()).setValue(new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail(), session.getUID()));
                             DBREF.child(phoneVsId).child(session.getPhone()).setValue(session.getUID());
                             DBREF.child(userSession).child(session.getUID()).setValue(new Online(true, getTimeStamp(), session.getPhone(), session.getName(), session.getUID()));
