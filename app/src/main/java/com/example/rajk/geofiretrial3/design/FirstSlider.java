@@ -3,6 +3,7 @@ package com.example.rajk.geofiretrial3.design;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,7 +23,7 @@ public class FirstSlider extends AppCompatActivity {
 
     private ViewPager viewPager;
     private slideadapter myadapter;
-    Button next, skip;
+    FloatingActionButton next;
     private SharedPreference sharedPreference;
     private TextView[] dots;
     private LinearLayout dotslayout;
@@ -50,14 +51,9 @@ public class FirstSlider extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.slide_viewpager);
         myadapter = new slideadapter(this);
 
-        next = (Button) findViewById(R.id.next);
-        skip = (Button) findViewById(R.id.skip);
+        next = (FloatingActionButton) findViewById(R.id.next);
         dotslayout = (LinearLayout) findViewById(R.id.layoutdots);
 
-/*        final AnimatedColor oneToTwo = new AnimatedColor(ContextCompat.getColor(this, R.color.dark_dot_active_screen1), ContextCompat.getColor(this, R.color.dark_dot_active_screen2));
-        final AnimatedColor twoToThree = new AnimatedColor(ContextCompat.getColor(this, R.color.dark_dot_active_screen2), ContextCompat.getColor(this, R.color.dark_dot_active_screen3));
-        final AnimatedColor threeToFour = new AnimatedColor(ContextCompat.getColor(this, R.color.dark_dot_active_screen3), ContextCompat.getColor(this, R.color.dark_dot_active_screen4));
-*/
         addButtonDots(0);
         changecolor();
 
@@ -84,27 +80,15 @@ public class FirstSlider extends AppCompatActivity {
             public void onPageSelected(int position) {
                 addButtonDots(position);
                 if (position == 3) {
-                    next.setText("Proceed");
-                    skip.setVisibility(View.GONE);
+                    next.setImageResource(R.drawable.ic_proceed);
                 } else {
-                    next.setText("Next");
-                    skip.setVisibility(View.VISIBLE);
+                    next.setImageResource(R.drawable.ic_arrow);
                 }
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
 
-            }
-        });
-
-        skip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sharedPreference.setfirst(false);
-                Intent intent = new Intent(FirstSlider.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
             }
         });
 

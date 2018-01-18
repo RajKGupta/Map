@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#355c7d</color>
+    <color name="colorPrimarylight">#b5ffab91</color>
     <color name="colorPrimaryDark">#355c7d</color>
     <color name="colorAccent">#ffab91</color>
     <color name="from">#000000</color>
     <color name="black">#000000</color>
     <color name="subject">#111111</color>
     <color name="white">#ffffff</color>
+    <color name="color_profiletitlebar">#454353</color>
+    <color name="darkbg">#757575</color>
+    <color name="transwhite">#4dffffff</color>
+    <color name="trans2white">#a7ffffff</color>
     <color name="timestamp">#4285f4</color>
     <color name="message">#7a7a7a</color>
     <color name="icon_tint_normal">#7a7a7a</color>
@@ -15,9 +20,11 @@
     <color name="bg_action_mode">#757575</color>
     <color name="bg_circle_default">#666666</color>
     <color name="grey_100">#4bf5f5f5</color>
+    <color name="nextfloat">#514e4040</color>
     <color name="grey_300">#E0E0E0</color>
     <color name="backgroundColor">#c8ffbd39</color>
     <color name="backgroundColorLight">#29f6303f</color>
+    <color name="red">#d50000</color>
 
     <color name="dark_dot_active_screen1">#e57373</color>
     <color name="dark_dot_active_screen2">#a6576d</color>
@@ -42,4 +49,6 @@
         <item>@color/dark_dot_active_screen3</item>
         <item>@color/dark_dot_active_screen4</item>
     </array>
+
+
 </resources>

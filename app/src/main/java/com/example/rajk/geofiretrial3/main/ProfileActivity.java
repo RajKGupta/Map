@@ -2,6 +2,8 @@ package com.example.rajk.geofiretrial3.main;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,12 +34,11 @@ import static com.example.rajk.geofiretrial3.SaferIndia.phoneVsId;
 import static com.example.rajk.geofiretrial3.SaferIndia.sendNotif;
 import static com.example.rajk.geofiretrial3.SaferIndia.userSession;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
-import static com.example.rajk.geofiretrial3.main.LoginActivity.session;
 
 public class ProfileActivity extends AppCompatActivity {
     String name, phone, blood, address, gender, age, diseases, imgurl;
     EditText ename, ephone, eblood, eaddress, eage, ediseases, eimgurl;
-    Button submit_profile;
+    FloatingActionButton submit_profile;
     public SharedPreference session;
     RadioGroup egender;
     RadioButton esex;
@@ -49,6 +50,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         session = new SharedPreference(this);
 
+        getSupportActionBar().setTitle("Create Account");
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.darkbg)));
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         ename = (EditText) findViewById(R.id.ename);
         ephone = (EditText) findViewById(R.id.ephone);
         eaddress = (EditText) findViewById(R.id.eaddress);
@@ -57,7 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
         egender = (RadioGroup) findViewById(R.id.egender);
         egender.clearCheck();
         ediseases = (EditText) findViewById(R.id.edisease);
-        submit_profile = (Button) findViewById(R.id.submit_profile);
+        submit_profile = (FloatingActionButton) findViewById(R.id.submit_profile);
         ename.setText(session.getName());
 
         submit_profile.setOnClickListener(new View.OnClickListener() {
@@ -76,25 +80,23 @@ public class ProfileActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(name) || TextUtils.isEmpty(address) || TextUtils.isEmpty(phone) || TextUtils.isEmpty(gender) || TextUtils.isEmpty(age) || TextUtils.isEmpty(blood) || TextUtils.isEmpty(diseases)) {
                     Toast.makeText(ProfileActivity.this, "Fill all the details", Toast.LENGTH_SHORT).show();
                 } else {
-                    session.setSharedPreference(name, phone, blood, address, gender, age, diseases, session.getImgurl(), session.getEmail(),"");
-                    DBREF.child(users).child(session.getUID()).setValue(new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail(),session.getUID()));
+                    session.setSharedPreference(name, phone, blood, address, gender, age, diseases, session.getImgurl(), session.getEmail(), "");
+                    DBREF.child(users).child(session.getUID()).setValue(new PersonalDetails(session.getName(), session.getPhone(), session.getBlood(), session.getAddress(), session.getGender(), session.getAge(), session.getDiseases(), session.getImgurl(), session.getEmail(), session.getUID()));
                     DBREF.child(phoneVsId).child(session.getPhone()).setValue(session.getUID());
-                    DBREF.child(userSession).child(session.getUID()).setValue(new Online(true, getTimeStamp(),session.getPhone(),session.getName(),session.getUID()));
+                    DBREF.child(userSession).child(session.getUID()).setValue(new Online(true, getTimeStamp(), session.getPhone(), session.getName(), session.getUID()));
                     DBREF.child(guardianNotUser).child(session.getPhone()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.exists())
-                            {
-                                for (DataSnapshot ds:dataSnapshot.getChildren())
-                                {
+                            if (dataSnapshot.exists()) {
+                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     DBREF.child(users).child(session.getUID()).child(myResponsibility).child(ds.getKey()).setValue(ds.getValue(String.class));
                                     DBREF.child(users).child(ds.getValue(String.class)).child(emergencyContact).child(session.getPhone()).setValue(session.getUID());
                                     DBREF.child(userSession).child(ds.getValue(String.class)).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             Online online = dataSnapshot.getValue(Online.class);
-                                            sendNotif(online.getId(),session.getUID(),addedGuardian,online.getName()+" added you as Guardian");
-                                            }
+                                            sendNotif(online.getId(), session.getUID(), addedGuardian, online.getName() + " added you as Guardian");
+                                        }
 
                                         @Override
                                         public void onCancelled(DatabaseError databaseError) {
@@ -105,8 +107,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 DBREF.child(guardianNotUser).child(session.getPhone()).removeValue();
                                 goToNextActivity();
 
-                            }
-                            else {
+                            } else {
                                 goToNextActivity();
                             }
                         }
@@ -116,10 +117,11 @@ public class ProfileActivity extends AppCompatActivity {
 
                         }
                     });
-                    }
+                }
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -140,6 +142,7 @@ public class ProfileActivity extends AppCompatActivity {
         AlertDialog alert = builder.create();
         alert.show();
     }
+
     private void goToNextActivity() {
         Intent intent = new Intent(ProfileActivity.this, Step2PickContact.class);
         startActivity(intent);

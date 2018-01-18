@@ -75,13 +75,14 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:background="@drawable/edittext_bg_whitebg"
-                            android:drawableLeft="@drawable/ic_face_black_24dp"
+                            android:drawableLeft="@drawable/ic_face_vp"
                             android:inputType="textPersonName"
                             android:padding="10dp"
                             android:drawablePadding="10dp"
                             android:textColor="@color/colorPrimary"
                             android:textSize="15sp"
-                            android:enabled="false" />
+                            android:enabled="false"
+                            />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -99,7 +100,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:background="@drawable/edittext_bg_whitebg"
-                            android:drawableLeft="@drawable/ic_home_black_24dp"
+                            android:drawableLeft="@drawable/ic_home_vp"
                             android:inputType="textPostalAddress"
                             android:padding="10dp"
                             android:drawablePadding="10dp"
@@ -122,7 +123,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:background="@drawable/edittext_bg_whitebg"
-                            android:drawableLeft="@drawable/ic_local_phone_black_24dp"
+                            android:drawableLeft="@drawable/ic_local_phone_vp"
                             android:inputType="phone"
                             android:padding="10dp"
                             android:drawablePadding="10dp"

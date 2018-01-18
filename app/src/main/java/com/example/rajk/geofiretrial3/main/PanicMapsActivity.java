@@ -12,12 +12,15 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +32,9 @@ import com.example.rajk.geofiretrial3.helper.CircleTransform;
 import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
 import com.example.rajk.geofiretrial3.model.PersonalDetails;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
+import com.example.rajk.geofiretrial3.services.HelpSound;
 import com.example.rajk.geofiretrial3.services.LocServ;
+import com.example.rajk.geofiretrial3.services.ShakeSensorService;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -57,8 +62,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.invite;
 import static com.example.rajk.geofiretrial3.SaferIndia.myPanicResponsibilityId;
@@ -69,29 +76,32 @@ import static com.example.rajk.geofiretrial3.SaferIndia.soundOff;
 import static com.example.rajk.geofiretrial3.SaferIndia.userLoction;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
-public class PanicMapsActivity extends MainActivity implements OnMapReadyCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class PanicMapsActivity extends MainActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient googleApiClient;
     final static int REQUEST_LOCATION = 199;
     private DatabaseReference ref = DBREF.child(userLoction).getRef();
     private GeoFire geoFire = new GeoFire(ref);
     private GoogleMap mMap;
-    private Location GwaliorLocation,myloc;
+    private Location GwaliorLocation, myloc;
     private Intent intent;
     private String myPanicResponsibilityIdString;
     private SharedPreference session;
     private DatabaseReference myResponsibilityPanicStateReference;
     private HashMap<String, Marker> userMarkers = new HashMap<>();
-    private  ValueEventListener myResponsibilityPanicStateListener;
+    private ValueEventListener myResponsibilityPanicStateListener;
     private ArrayList<String> myResponsibilityList = new ArrayList<>();
     private GeoQuery GwaliorGeoQuery;
     private HashMap<String, PersonalDetails> myResponsibilityDetail = new HashMap<>();
     private Boolean showAll = true;
-    private Boolean focusingMe=false;
-    private Boolean once=true;
+    private Boolean focusingMe = false;
+    private Boolean once = true;
     private MarshmallowPermissions marshmallowPermissions;
     private AlertDialog alertDialog;
     private Intent locServiceIntent;
+    private FloatingActionButton hideAll, toggle;
+    private TextView panikedperson;
+    private LinearLayout parent;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -99,14 +109,18 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
         FrameLayout frame = (FrameLayout) findViewById(R.id.frame);
         getLayoutInflater().inflate(R.layout.activity_panic_maps, frame);
         registerReceiver(gpsReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
+
+        parent = (LinearLayout) findViewById(R.id.parentpanicmapsactivity);
         locServiceIntent = new Intent(this, LocServ.class);
         marshmallowPermissions = new MarshmallowPermissions(this);
+        stopService(new Intent(getApplicationContext(), ShakeSensorService.class));
         if (marshmallowPermissions.checkMultiPermission()) {
             //Toast.makeText(MapsActivity2.this, "All Permissions Granted Successfully", Toast.LENGTH_LONG).show();
             callEverything();
         }
     }
-    private void callEverything(){
+
+    private void callEverything() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(PanicMapsActivity.this);
         builder.setMessage("Enable location service to proceed")
                 .setCancelable(false)
@@ -123,31 +137,28 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
         intent = getIntent();
         session = new SharedPreference(this);
         myPanicResponsibilityIdString = intent.getStringExtra(myPanicResponsibilityId);
-        Boolean ifShare = intent.getBooleanExtra(share,false);
-        if(ifShare)
-        {
+        Boolean ifShare = intent.getBooleanExtra(share, false);
+        if (ifShare) {
             Intent smsIntent = new Intent(Intent.ACTION_SEND);
             String content = intent.getStringExtra("body");
             smsIntent.setData(Uri.parse("smsto:"));
             smsIntent.setType("text/plain");
-            smsIntent.putExtra("sms_body"  , content);
+            smsIntent.putExtra("sms_body", content);
             smsIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Emergency!! I need your help");
-            smsIntent.putExtra(android.content.Intent.EXTRA_TEXT,content );
-            smsIntent.putExtra("sms_body"  , content );
+            smsIntent.putExtra(android.content.Intent.EXTRA_TEXT, content);
+            smsIntent.putExtra("sms_body", content);
 
             try {
-                startActivity(Intent.createChooser(smsIntent,"Share"));
-            }
-            catch (android.content.ActivityNotFoundException ex) {
+                startActivity(Intent.createChooser(smsIntent, "Share"));
+            } catch (android.content.ActivityNotFoundException ex) {
                 Toast.makeText(PanicMapsActivity.this,
                         "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
             }
 
         }
-        Boolean ifSoundOff = intent.getBooleanExtra(soundOff,false);
-        if(ifSoundOff)
-        {
-            //TODO stopService() of sound
+        Boolean ifSoundOff = intent.getBooleanExtra(soundOff, false);
+        if (ifSoundOff) {
+            stopService(new Intent(getApplicationContext(), HelpSound.class));
         }
 //      Going back to previous activity when panic state off
         myResponsibilityPanicStateReference = DBREF.child(users).child(myPanicResponsibilityIdString).child(panick).getRef();
@@ -194,7 +205,6 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
     }
 
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -207,6 +217,35 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Gwaliorpos));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        hideAll = (FloatingActionButton) findViewById(R.id.hideAll);
+        hideAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (showAll) {
+                    Snackbar snackbar = Snackbar
+                            .make(parent, "Hiding Others Location!", Snackbar.LENGTH_SHORT);
+
+                    snackbar.show();
+                    showAll = false;
+                    getMyResponsibilityList();
+                } else {
+                    Snackbar snackbar = Snackbar
+                            .make(parent, "Showing Everyone's Location!", Snackbar.LENGTH_SHORT);
+
+                    snackbar.show();
+                    showAll = true;
+                    getMyResponsibilityList();
+                }
+            }
+        });
+        toggle = (FloatingActionButton) findViewById(R.id.toggle);
+        toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleLocation();
+            }
+        });
+        panikedperson = (TextView) findViewById(R.id.panikedperson);
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
             // Use default InfoWindow frame
@@ -241,18 +280,15 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
                         loc2_.setLatitude(loc2.latitude);
                         loc2_.setLongitude(loc2.longitude);
                         float distanceInMeters = loc1_.distanceTo(loc2_);
-                        if(distanceInMeters<100)
-                            emailText.setText(String.format("%.0f", distanceInMeters)+" m from you");
-                        else if(distanceInMeters<1000)
-                        {
-                            int distance = (int)(distanceInMeters/10);
-                            distance = distance*10;
-                            emailText.setText(distance+" m from you");
-                        }
-                        else
-                        {
-                            distanceInMeters/=1000;
-                            emailText.setText(String.format("%.1f", distanceInMeters)+" km from you");
+                        if (distanceInMeters < 100)
+                            emailText.setText(String.format("%.0f", distanceInMeters) + " m from you");
+                        else if (distanceInMeters < 1000) {
+                            int distance = (int) (distanceInMeters / 10);
+                            distance = distance * 10;
+                            emailText.setText(distance + " m from you");
+                        } else {
+                            distanceInMeters /= 1000;
+                            emailText.setText(String.format("%.1f", distanceInMeters) + " km from you");
                         }
 
                     }
@@ -282,32 +318,30 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
         });
         mMap.getUiSettings().setMapToolbarEnabled(false);
         getMyResponsibilityList();
-     }
+    }
+
     private void plotMyResponsibility() {
 
         GwaliorGeoQuery = geoFire.queryAtLocation(new GeoLocation(GwaliorLocation.getLatitude(), GwaliorLocation.getLongitude()), 3000);
         GwaliorGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                if (myResponsibilityList.indexOf(key) != -1 ) {
+                if (myResponsibilityList.indexOf(key) != -1) {
                     LatLng latLng = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
-                    if(key.equals(myPanicResponsibilityIdString)) {
+                    if (key.equals(myPanicResponsibilityIdString)) {
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                    }
-                    else
-                    {
+                    } else {
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
                     }
                     Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
                     mCurrLocationMarker.setTitle(key);
                     userMarkers.put(key, mCurrLocationMarker);
-                    if(key.equals(myPanicResponsibilityIdString)) {
+                    if (key.equals(myPanicResponsibilityIdString)) {
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
                     }
-                    mCurrLocationMarker.showInfoWindow();
                 } else if (key.equals(session.getUID())) {
                     LatLng mypos = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
@@ -348,20 +382,14 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
                     LatLng latLng = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
-                    if(key.equals(myPanicResponsibilityIdString)) {
+                    if (key.equals(myPanicResponsibilityIdString)) {
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                    }
-                    else
-                    {
+                    } else {
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                     }
                     Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
                     mCurrLocationMarker.setTitle(key);
                     userMarkers.put(key, mCurrLocationMarker);
-                    if(key.equals(myPanicResponsibilityIdString)) {
-                        toggleLocation(latLng,myPanicResponsibilityIdString);
-                    }
-                    mCurrLocationMarker.showInfoWindow();
                     System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
                 } else if (key.equals(session.getUID())) {
                     Marker removeMarker = userMarkers.get(key);
@@ -374,7 +402,6 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
                     Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
                     mCurrLocationMarker.setTitle(key);
                     userMarkers.put(session.getUID(), mCurrLocationMarker);
-                    toggleLocation(mypos,session.getUID());
                     myloc.setLatitude(location.latitude);
                     myloc.setLongitude(location.longitude);
                 }
@@ -394,8 +421,8 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
     }
 
     // call getMyResponsibilityList whenever the user clicks on showOthers or hideOthers
-    private void getMyResponsibilityList()
-    {
+    private void getMyResponsibilityList() {
+
         DBREF.child(users).child(session.getUID()).child(myResponsibility).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -405,9 +432,7 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
                         for (DataSnapshot ds : dataSnapshot.getChildren()) {
                             myResponsibilityList.add(ds.getValue(String.class));
                         }
-                    }
-                    else
-                    {
+                    } else {
                         myResponsibilityList.clear();
                         myResponsibilityList.add(myPanicResponsibilityIdString);
                     }
@@ -418,15 +443,16 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
                         GwaliorGeoQuery.removeAllListeners();
                     fetchDetailsOfMyResponsibility();
                     plotMyResponsibility();
-                    }
                 }
+            }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-        }
+    }
+
     private void fetchDetailsOfMyResponsibility() {
         for (String id : myResponsibilityList) {
             DBREF.child(users).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -438,6 +464,7 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
                             myResponsibilityDetail.remove(personalDetails.getId());
                         }
                         myResponsibilityDetail.put(personalDetails.getId(), personalDetails);
+                        panikedperson.setText(myResponsibilityDetail.get(myPanicResponsibilityIdString).getName() + " needs your help!!");
                     }
                 }
 
@@ -448,28 +475,32 @@ public class PanicMapsActivity extends MainActivity implements OnMapReadyCallbac
             });
         }
     }
-private void toggleLocation(LatLng latLng,String id)
-{
-    if(once==true) {
-        once=false;
-        if (focusingMe == false && id.equals(myPanicResponsibilityIdString)) {
+
+    private void toggleLocation() {
+        if (focusingMe == false) {
+            focusingMe = true;
+            Marker marker = userMarkers.get(myPanicResponsibilityIdString);
+            LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        } else if (focusingMe == true && id.equals(session.getUID())) {
+        } else if (focusingMe == true) {
+            focusingMe = false;
+            Marker marker = userMarkers.get(session.getUID());
+            LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         }
     }
-}
+
 
     @Override
     protected void onDestroy() {
-        if(gpsReceiver!=null)
+        if (gpsReceiver != null)
             unregisterReceiver(gpsReceiver);
-        //TODO stop service of sound
-        super.onDestroy();
-        if(GwaliorGeoQuery!=null)
+        if (GwaliorGeoQuery != null)
             GwaliorGeoQuery.removeAllListeners();
-        if(myResponsibilityPanicStateListener!=null)
+        if (myResponsibilityPanicStateListener != null)
             myResponsibilityPanicStateReference.removeEventListener(myResponsibilityPanicStateListener);
+        startService(new Intent(getApplicationContext(), ShakeSensorService.class));
+        super.onDestroy();
     }
 
     @Override
@@ -492,10 +523,9 @@ private void toggleLocation(LatLng latLng,String id)
     }
 
     private void enableLoc() {
-        if(googleApiClient!=null)
-        {
+        if (googleApiClient != null) {
             googleApiClient.disconnect();
-            googleApiClient =null;
+            googleApiClient = null;
         }
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
@@ -511,7 +541,7 @@ private void toggleLocation(LatLng latLng,String id)
 
             LocationRequest locationRequest = LocationRequest.create();
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setInterval( 15000);
+            locationRequest.setInterval(15000);
             locationRequest.setFastestInterval(15000);
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                     .addLocationRequest(locationRequest);
@@ -543,7 +573,7 @@ private void toggleLocation(LatLng latLng,String id)
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        startService(new Intent(PanicMapsActivity.this, LocServ.class));
+        startService(new Intent(getApplicationContext(), LocServ.class));
     }
 
     @Override
@@ -555,6 +585,7 @@ private void toggleLocation(LatLng latLng,String id)
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -573,19 +604,20 @@ private void toggleLocation(LatLng latLng,String id)
                 break;
         }
     }
+
     private void checkLocationOn(Context context) {
         final LocationManager manager = (LocationManager) getSystemService(context.LOCATION_SERVICE);
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             alertDialog.show();
         }
         if (manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Toast.makeText(context, "some location service enabled", Toast.LENGTH_SHORT).show();
-            startService(new Intent(PanicMapsActivity.this, LocServ.class));
+            startService(new Intent(getApplicationContext(), LocServ.class));
 
         } else {
             Toast.makeText(context, "Nothing is enabled", Toast.LENGTH_SHORT).show();
         }
     }
+
     private BroadcastReceiver gpsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -619,11 +651,12 @@ private void toggleLocation(LatLng latLng,String id)
                 break;
         }
     }
+
     @Override
     protected void onStart() {
         super.onStart();
         if (marshmallowPermissions.checkMultiPermission()) {
-            if(alertDialog!=null && !alertDialog.isShowing())
+            if (alertDialog != null && !alertDialog.isShowing())
                 checkLocationOn(PanicMapsActivity.this);
         } else {
             marshmallowPermissions.requestMultiPermission();

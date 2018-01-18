@@ -1,5 +1,6 @@
 package com.example.rajk.geofiretrial3.main;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -77,7 +78,7 @@ public class ViewProfile extends AppCompatActivity {
 
 
                 final EditText ename, ephone, eblood, eaddress, eage, ediseases;
-                final Button submit_profile;
+                final FloatingActionButton submit_profile;
                 final RadioGroup egender;
                 final RadioButton[] esex = new RadioButton[1];
 
@@ -89,7 +90,7 @@ public class ViewProfile extends AppCompatActivity {
                 egender = (RadioGroup) customerEditDetails.findViewById(R.id.egender);
                 egender.clearCheck();
                 ediseases = (EditText) customerEditDetails.findViewById(R.id.edisease);
-                submit_profile = (Button) customerEditDetails.findViewById(R.id.submit_profile);
+                submit_profile = (FloatingActionButton) customerEditDetails.findViewById(R.id.submit_profile);
 
                 ename.setText(session.getName());
                 ephone.setText(session.getPhone());

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="bg">
+        <color name="dark_dot_active_screen1">#e57373</color>
+        <color name="dark_dot_active_screen2">#a6576d</color>
+        <color name="dark_dot_active_screen3">#6C5B7B</color>
+        <color name="dark_dot_active_screen4">#355C7D</color>
+    </array>
+</resources>

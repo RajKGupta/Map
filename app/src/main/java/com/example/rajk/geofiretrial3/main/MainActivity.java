@@ -6,7 +6,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.GravityCompat;
@@ -21,9 +20,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.rajk.geofiretrial3.R;
+import com.example.rajk.geofiretrial3.helper.CircleTransform;
 import com.example.rajk.geofiretrial3.helper.MarshmallowPermissions;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import com.example.rajk.geofiretrial3.step2.PickContact;
@@ -35,10 +39,11 @@ import static com.example.rajk.geofiretrial3.SaferIndia.users;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static Boolean alarm = true;
     private MediaPlayer mediaPlayer;
     private MarshmallowPermissions marshmallowPermissions;
     SharedPreference session;
+    ImageView profile_nav;
+    TextView name_nav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,18 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        final View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
+        profile_nav = (ImageView) headerLayout.findViewById(R.id.profile_nav);
+        name_nav = (TextView) headerLayout.findViewById(R.id.name_nav);
+        Glide.with(getApplicationContext()).load(session.getImgurl())
+                .thumbnail(0.5f)
+                .crossFade()
+                .transform(new CircleTransform(this))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(profile_nav);
+        int n = session.getName().indexOf(" ");
+        String name = session.getName().substring(0,n);
+        name_nav.setText("Hi! "+ name);
     }
 
     @Override
@@ -75,18 +92,8 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.alarm) {
-            if (alarm) {
-                setMediaVolumeMax();
-                mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.scream);
-                mediaPlayer.setLooping(true);
-                mediaPlayer.start();
-                alarm = false;
-            } else {
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-                alarm = true;
-            }
+        if (id == R.id.emergency) {
+
         } else if (id == R.id.profile) {
 
             Intent intent = new Intent(MainActivity.this, ViewProfile.class);
@@ -171,30 +178,27 @@ public class MainActivity extends AppCompatActivity
             });
         } else if (id == R.id.shareapp) {
             Intent smsIntent = new Intent(Intent.ACTION_SEND);
-            String content = "Hi I am building my Safety Network on FeelSafe App. Join me now. Download FeelSafe now from "+AppLink;
+            String content = "Hi I am building my Safety Network on FeelSafe App. Join me now. Download FeelSafe now from " + AppLink;
             smsIntent.setData(Uri.parse("smsto:"));
             smsIntent.setType("text/plain");
-            smsIntent.putExtra("sms_body"  , content);
+            smsIntent.putExtra("sms_body", content);
             smsIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Share");
-            smsIntent.putExtra(android.content.Intent.EXTRA_TEXT,content );
-            smsIntent.putExtra("sms_body"  , content );
+            smsIntent.putExtra(android.content.Intent.EXTRA_TEXT, content);
+            smsIntent.putExtra("sms_body", content);
             try {
-                startActivity(Intent.createChooser(smsIntent,"Share"));
-            }
-            catch (android.content.ActivityNotFoundException ex) {
+                startActivity(Intent.createChooser(smsIntent, "Share"));
+            } catch (android.content.ActivityNotFoundException ex) {
                 Toast.makeText(this,
                         "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
             }
 
 
-        }
-        else if (id == R.id.viewgardians) {
+        } else if (id == R.id.viewgardians) {
 
             Intent intent = new Intent(MainActivity.this, ViewGaurdians.class);
             startActivity(intent);
 
-        }
-        else if (id == R.id.viewresponsibilities) {
+        } else if (id == R.id.viewresponsibilities) {
 
             Intent intent = new Intent(MainActivity.this, ViewResponsibility.class);
             startActivity(intent);

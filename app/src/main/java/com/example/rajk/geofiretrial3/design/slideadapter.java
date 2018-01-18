@@ -46,7 +46,7 @@ public class slideadapter extends PagerAdapter {
         View view = inflater.inflate(R.layout.slide1, container, false);
         LinearLayout layoutslide = (LinearLayout) view.findViewById(R.id.slide_layout);
         TextView text = (TextView) view.findViewById(R.id.slidetext);
-        //layoutslide.setBackgroundColor(bgcolors[position]);
+        layoutslide.setBackgroundColor(bgcolors[position]);
         text.setText(textlist[position]);
         container.addView(view);
         return view;

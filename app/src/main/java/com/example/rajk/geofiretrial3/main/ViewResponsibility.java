@@ -8,6 +8,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.SaferIndia;
@@ -92,6 +93,14 @@ public class ViewResponsibility extends AppCompatActivity implements gaundian_ad
     @Override
     public void onshareclicked(int position) {
 
+    }
+
+    @Override
+    public void onExpandClicked(int position, gaundian_adapter.MyViewHolder holder) {
+        if (holder.expandnhide.getVisibility() == View.GONE)
+            holder.expandnhide.setVisibility(View.VISIBLE);
+        else if (holder.expandnhide.getVisibility() == View.VISIBLE)
+            holder.expandnhide.setVisibility(View.GONE);
     }
 
     @Override

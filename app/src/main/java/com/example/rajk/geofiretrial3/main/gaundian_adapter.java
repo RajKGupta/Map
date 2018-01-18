@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -57,6 +58,10 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
 
         gaurdians_and_responsibilities gar = list.get(position);
 
+        int[] rainbow = context.getResources().getIntArray(R.array.dotinactive);
+        holder.backrelative.setBackgroundColor(rainbow[position%4]);
+        holder.expandnhide.setBackgroundColor(rainbow[position%4]);
+
         holder.contact.setText(gar.getPhone());
         if (gar.getId().equals(""))
         {
@@ -65,6 +70,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             holder.icon_text.setText(caps.charAt(0) + "");
             holder.email.setVisibility(View.GONE);
             holder.shareifnotuser.setVisibility(View.VISIBLE);
+            holder.textnotuser.setVisibility(View.VISIBLE);
         }
         else
         {
@@ -79,8 +85,8 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
                         holder.Name.setText(gard.getName());
                         applyProfilePicture(holder, gard.getImgurl());
                         holder.shareifnotuser.setVisibility(View.INVISIBLE);
+                        holder.textnotuser.setVisibility(View.INVISIBLE);
                     }
-
                 }
 
                 @Override
@@ -90,9 +96,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             });
         }
 
-
         applyClickEvents(holder, position);
-
     }
 
     @Override
@@ -104,7 +108,7 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
     {
         if(imgurl.equals("")) {
             holder.imgProfile.setImageResource(R.drawable.bg_circle);
-            holder.imgProfile.setColorFilter(getRandomMaterialColor("400"));
+            holder.icon_text.setVisibility(View.VISIBLE);
         }
         else
         {
@@ -119,25 +123,12 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
         }
     }
 
-    private int getRandomMaterialColor(String typeColor) {
-        int returnColor = Color.GRAY;
-        int arrayId = context.getResources().getIdentifier("mdcolor_" + typeColor, "array", context.getPackageName());
-
-        if (arrayId != 0) {
-            TypedArray colors = context.getResources().obtainTypedArray(arrayId);
-            int index = (int) (Math.random() * colors.length());
-            returnColor = colors.getColor(index, Color.GRAY);
-            colors.recycle();
-        }
-        return returnColor;
-    }
-
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView Name, icon_text, contact, email;
+        TextView Name, icon_text, contact, email, textnotuser;
         LinearLayout employee_row;
-        ImageButton callme;
+        ImageButton callme, shareifnotuser, expand;
         ImageView imgProfile;
-        LinearLayout shareifnotuser;
+        RelativeLayout expandnhide, backrelative;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -149,16 +140,21 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             employee_row = (LinearLayout) itemView.findViewById(R.id.employee_row);
             imgProfile = (ImageView) itemView.findViewById(R.id.icon_profile);
             callme = (ImageButton) itemView.findViewById(R.id.callme);
-            shareifnotuser = (LinearLayout) itemView.findViewById(R.id.shareifnotuser);
+            shareifnotuser = (ImageButton) itemView.findViewById(R.id.shareifnotuser);
+            expand = (ImageButton) itemView.findViewById(R.id.expand);
+            expandnhide = (RelativeLayout) itemView.findViewById(R.id.expandnhide);
+            backrelative = (RelativeLayout) itemView.findViewById(R.id.backrelative);
+            textnotuser = (TextView) itemView.findViewById(R.id.textnotuser);
         }
     }
 
     public interface phonebook_adapterListener {
         void onCALLMEclicked(int position);
         void onshareclicked(int position);
+        void onExpandClicked(int position, MyViewHolder holder);
     }
 
-    private void applyClickEvents(MyViewHolder holder, final int position) {
+    private void applyClickEvents(final MyViewHolder holder, final int position) {
 
         holder.callme.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,6 +167,13 @@ public class gaundian_adapter extends RecyclerView.Adapter<gaundian_adapter.MyVi
             @Override
             public void onClick(View v) {
                 listener.onshareclicked(position);
+            }
+        });
+
+        holder.expand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onExpandClicked(position,holder);
             }
         });
 

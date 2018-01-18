@@ -4,7 +4,7 @@
     android:shape="oval">
 
     <solid
-        android:color="@color/bg_circle_default"/>
+        android:color="@color/colorAccent"/>
 
     <size
         android:width="120dp"

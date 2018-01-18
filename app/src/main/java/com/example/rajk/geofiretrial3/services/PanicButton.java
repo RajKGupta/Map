@@ -8,6 +8,7 @@ import android.os.IBinder;
 import com.example.rajk.geofiretrial3.R;
 import com.example.rajk.geofiretrial3.model.SharedPreference;
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
+import static com.example.rajk.geofiretrial3.SaferIndia.panick;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
 public class PanicButton extends Service {
@@ -26,14 +27,14 @@ public class PanicButton extends Service {
     public void onCreate() {
         super.onCreate();
         session = new SharedPreference(this);
-        DBREF.child(users).child(session.getUID()).child("panic").setValue(true);
+        DBREF.child(users).child(session.getUID()).child(panick).setValue(true);
         session.setPanick(true);
         setMediaVolumeMax();
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.sample);
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.scream);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
-        startService(new Intent(getApplicationContext(), LocServ.class));
-        startService(new Intent(getApplicationContext(), SendSMSService.class));
+        startService(new Intent(PanicButton.this, LocServ.class));
+        startService(new Intent(PanicButton.this, SendSMSService.class));
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -50,6 +51,6 @@ public class PanicButton extends Service {
     private void setMediaVolumeMax() {
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int maxVolume = audioManager.getStreamMaxVolume(3);
-//        audioManager.setStreamVolume(3, maxVolume, 1);
+        audioManager.setStreamVolume(3, maxVolume, 1);
     }
 }

@@ -8,6 +8,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.rajk.geofiretrial3.MapsActivity2;
@@ -119,6 +120,14 @@ public class ViewGaurdians extends AppCompatActivity implements gaundian_adapter
             Toast.makeText(this,
                     "Your phone does not support this option. Contact manufacturer for details", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onExpandClicked(int position, gaundian_adapter.MyViewHolder holder) {
+        if (holder.expandnhide.getVisibility() == View.GONE)
+            holder.expandnhide.setVisibility(View.VISIBLE);
+        else if (holder.expandnhide.getVisibility() == View.VISIBLE)
+            holder.expandnhide.setVisibility(View.GONE);
     }
 
     @Override

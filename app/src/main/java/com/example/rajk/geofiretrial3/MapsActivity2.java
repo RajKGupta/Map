@@ -35,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.rajk.geofiretrial3.helper.CircleTransform;
@@ -74,9 +75,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+
 import static com.example.rajk.geofiretrial3.SaferIndia.DBREF;
 import static com.example.rajk.geofiretrial3.SaferIndia.myPanicResponsibilityId;
 import static com.example.rajk.geofiretrial3.SaferIndia.myResponsibility;
@@ -84,7 +87,7 @@ import static com.example.rajk.geofiretrial3.SaferIndia.panick;
 import static com.example.rajk.geofiretrial3.SaferIndia.userLoction;
 import static com.example.rajk.geofiretrial3.SaferIndia.users;
 
-public class MapsActivity2 extends MainActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity2 extends MainActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private GoogleApiClient googleApiClient;
     final static int REQUEST_LOCATION = 199;
     private DatabaseReference ref = DBREF.child(userLoction).getRef();
@@ -93,7 +96,6 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback,Go
     private Location myloc;
     private GoogleMap mMap;
     private SharedPreference session;
-    Marker mCurrLocationMarker;
     private AlertDialog alertDialog;
     private ToggleButton toggleButton;
     private MarshmallowPermissions marshmallowPermissions;
@@ -121,7 +123,7 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback,Go
         getLayoutInflater().inflate(R.layout.activity_maps2, frame);
         registerReceiver(gpsReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
 
-        locServiceIntent = new Intent(MapsActivity2.this, LocServ.class);
+        locServiceIntent = new Intent(getApplicationContext(), LocServ.class);
 
         session = new SharedPreference(this);
         startService(new Intent(getApplicationContext(), ShakeSensorService.class));
@@ -150,98 +152,99 @@ public class MapsActivity2 extends MainActivity implements OnMapReadyCallback,Go
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+    }
+
+    private void callEverything() {
+        if (alertDialog != null && !alertDialog.isShowing())
+            checkLocationOn(MapsActivity2.this);
+
+        //check panic state OR
+        if (session.getPin().equals("")) {
+            viewSelectedImages = new AlertDialog.Builder(MapsActivity2.this)
+                    .setView(R.layout.activity_pin_dialogue).setCancelable(false).create();
+            viewSelectedImages.show();
+
+            final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
+            Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
+            final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
+            EnterPinWrap.setHint("Enter Pin");
+            EnterPinWrap.setHintAnimationEnabled(true);
+
+            oksave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String pin = EnterPin.getText().toString().trim();
+                    hideKeyboard();
+                    if (TextUtils.isEmpty(pin) || pin.length() != 4) {
+                        EnterPinWrap.setError("Please Enter the Pin");
+                    } else {
+                        EnterPinWrap.setErrorEnabled(false);
+                        DBREF.child(users).child(session.getUID()).child("pin").setValue(pin);
+                        session.setPin(pin);
+                        viewSelectedImages.dismiss();
+                    }
+                }
+            });
         }
-private void callEverything()
-{
-    if(alertDialog!=null && !alertDialog.isShowing())
-        checkLocationOn(MapsActivity2.this);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        toggleButton = (ToggleButton) findViewById(R.id.panicBtn);
 
-    //check panic state OR
-    if (session.getPin().equals("")) {
-        viewSelectedImages = new AlertDialog.Builder(MapsActivity2.this)
-                .setView(R.layout.activity_pin_dialogue).setCancelable(false).create();
-        viewSelectedImages.show();
+        if (getIntent().hasExtra("service")) {
+            toggleButton.setChecked(true);
+            panicbuttonpressed();
+        }
 
-        final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
-        Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
-        final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
-        EnterPinWrap.setHint("Enter Pin");
-        EnterPinWrap.setHintAnimationEnabled(true);
+        if (session.getPanick()) {
+            toggleButton.setChecked(true);
+        }
 
-        oksave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String pin = EnterPin.getText().toString().trim();
-                hideKeyboard();
-                if (TextUtils.isEmpty(pin) || pin.length() != 4) {
-                    EnterPinWrap.setError("Please Enter the Pin");
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+                    panicbuttonpressed();
                 } else {
-                    EnterPinWrap.setErrorEnabled(false);
-                    DBREF.child(users).child(session.getUID()).child("pin").setValue(pin);
-                    session.setPin(pin);
-                    viewSelectedImages.dismiss();
+                    // TODO PIN to close panic state
+                    // The toggle is disabled
+                    viewSelectedImages = new AlertDialog.Builder(MapsActivity2.this)
+                            .setView(R.layout.activity_pin_dialogue).create();
+                    viewSelectedImages.show();
+
+                    final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
+                    Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
+                    final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
+                    EnterPinWrap.setHint("Enter Pin");
+                    EnterPinWrap.setHintAnimationEnabled(true);
+
+                    oksave.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String pin = EnterPin.getText().toString().trim();
+                            hideKeyboard();
+                            if (pin.equals("") || !pin.equals(session.getPin())) {
+                                EnterPinWrap.setError("Please enter the correct pin!!");
+                                EnterPin.setText("");
+                            } else {
+                                EnterPinWrap.setErrorEnabled(false);
+                                DBREF.child(users).child(session.getUID()).child(panick).setValue(false);
+                                session.setPanick(false);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    toggleButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.circle_bg_on));
+                                }
+                                stopService(new Intent(getApplicationContext(), PanicButton.class));
+                                startService(new Intent(MapsActivity2.this, SendSMSService.class));
+                                viewSelectedImages.dismiss();
+                            }
+                        }
+                    });
                 }
             }
         });
-    }
-    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-            .findFragmentById(R.id.map);
-    mapFragment.getMapAsync(this);
-    toggleButton = (ToggleButton) findViewById(R.id.panicBtn);
 
-    if (getIntent().hasExtra("service")) {
-        toggleButton.setChecked(true);
-        panicbuttonpressed();
     }
 
-    if (session.getPanick()) {
-        toggleButton.setChecked(true);
-    }
-
-    toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (isChecked) {
-                // The toggle is enabled
-                panicbuttonpressed();
-            } else {
-                // TODO PIN to close panic state
-                // The toggle is disabled
-                viewSelectedImages = new AlertDialog.Builder(MapsActivity2.this)
-                        .setView(R.layout.activity_pin_dialogue).create();
-                viewSelectedImages.show();
-
-                final EditText EnterPin = (EditText) viewSelectedImages.findViewById(R.id.enterpin);
-                Button oksave = (Button) viewSelectedImages.findViewById(R.id.oksave);
-                final TextInputLayout EnterPinWrap = (TextInputLayout) viewSelectedImages.findViewById(R.id.enterpinwrap);
-                EnterPinWrap.setHint("Enter Pin");
-                EnterPinWrap.setHintAnimationEnabled(true);
-
-                oksave.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String pin = EnterPin.getText().toString().trim();
-                        hideKeyboard();
-                        if (pin.equals("") || !pin.equals(session.getPin())) {
-                            EnterPinWrap.setError("Please enter the correct pin!!");
-                            EnterPin.setText("");
-                        } else {
-                            EnterPinWrap.setErrorEnabled(false);
-                            DBREF.child(users).child(session.getUID()).child(panick).setValue(false);
-                            session.setPanick(false);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                toggleButton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.circle_bg_on));
-                            }
-                            stopService(new Intent(getApplicationContext(), PanicButton.class));
-                            startService(new Intent(MapsActivity2.this, SendSMSService.class));
-                            viewSelectedImages.dismiss();
-                        }
-                    }
-                });
-            }
-        }
-    });
-
-}
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -286,7 +289,6 @@ private void callEverything()
                     Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
                     mCurrLocationMarker.setTitle(key);
                     userMarkers.put(key, mCurrLocationMarker);
-                    mCurrLocationMarker.showInfoWindow();
                 } else if (key.equals(session.getUID())) {
                     LatLng mypos = new LatLng(location.latitude, location.longitude);
                     MarkerOptions markerOptions = new MarkerOptions();
@@ -333,7 +335,7 @@ private void callEverything()
                     Marker mCurrLocationMarker = mMap.addMarker(markerOptions);
                     mCurrLocationMarker.setTitle(key);
                     userMarkers.put(key, mCurrLocationMarker);
-                    mCurrLocationMarker.showInfoWindow();
+
                     System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
                 } else if (key.equals(session.getUID())) {
                     Marker removeMarker = userMarkers.get(key);
@@ -435,18 +437,15 @@ private void callEverything()
                         loc2_.setLatitude(loc2.latitude);
                         loc2_.setLongitude(loc2.longitude);
                         float distanceInMeters = loc1_.distanceTo(loc2_);
-                        if(distanceInMeters<100)
-                            emailText.setText(String.format("%.0f", distanceInMeters)+" m from you");
-                        else if(distanceInMeters<1000)
-                        {
-                            int distance = (int)(distanceInMeters/10);
-                            distance = distance*10;
-                            emailText.setText(distance+" m from you");
-                        }
-                        else
-                        {
-                            distanceInMeters/=1000;
-                            emailText.setText(String.format("%.1f", distanceInMeters)+" km from you");
+                        if (distanceInMeters < 100)
+                            emailText.setText(String.format("%.0f", distanceInMeters) + " m from you");
+                        else if (distanceInMeters < 1000) {
+                            int distance = (int) (distanceInMeters / 10);
+                            distance = distance * 10;
+                            emailText.setText(distance + " m from you");
+                        } else {
+                            distanceInMeters /= 1000;
+                            emailText.setText(String.format("%.1f", distanceInMeters) + " km from you");
                         }
 
                     }
@@ -488,8 +487,8 @@ private void callEverything()
     protected void onStart() {
         super.onStart();
         if (marshmallowPermissions.checkMultiPermission()) {
-            if(alertDialog!=null && !alertDialog.isShowing())
-            checkLocationOn(MapsActivity2.this);
+            if (alertDialog != null && !alertDialog.isShowing())
+                checkLocationOn(MapsActivity2.this);
         } else {
             marshmallowPermissions.requestMultiPermission();
         }
@@ -520,7 +519,7 @@ private void callEverything()
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(gpsReceiver!=null)
+        if (gpsReceiver != null)
             unregisterReceiver(gpsReceiver);
 
         if (myResponsibilityListListener != null)
@@ -545,7 +544,7 @@ private void callEverything()
                         if (personalDetails.getPanic()) {
 //                            toggleButton.setVisibility(View.GONE);
                             Intent intent = new Intent(MapsActivity2.this, PanicMapsActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent.putExtra(myPanicResponsibilityId, personalDetails.getId());
                             stopService(locServiceIntent);
                             startActivity(intent);
@@ -581,24 +580,24 @@ private void callEverything()
                     hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
+
     private void checkLocationOn(Context context) {
         final LocationManager manager = (LocationManager) getSystemService(context.LOCATION_SERVICE);
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             alertDialog.show();
         }
         if (manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Toast.makeText(context, "some location service enabled", Toast.LENGTH_SHORT).show();
             startService(locServiceIntent);
 
         } else {
-            Toast.makeText(context, "Nothing is enabled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "You need to enable GPS to make this Application work.", Toast.LENGTH_SHORT).show();
         }
     }
+
     private void enableLoc() {
-        if(googleApiClient!=null)
-        {
+        if (googleApiClient != null) {
             googleApiClient.disconnect();
-            googleApiClient =null;
+            googleApiClient = null;
         }
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
@@ -657,13 +656,14 @@ private void callEverything()
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         switch (requestCode) {
             case REQUEST_LOCATION:
                 switch (resultCode) {
-                    case Activity.RESULT_OK:{
+                    case Activity.RESULT_OK: {
                         break;
                     }
                     case Activity.RESULT_CANCELED: {

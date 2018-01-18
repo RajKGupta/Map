@@ -2,42 +2,52 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        
-        <item
-            android:id="@+id/alarm"
-            android:icon="@drawable/ic_alarm"
-            android:title="Alarm" />
 
-        <item
-            android:id="@+id/viewgardians"
-            android:icon="@drawable/ic_location_on"
-            android:title="View Gaurdians" />
-        <item
-            android:id="@+id/viewresponsibilities"
-            android:icon="@drawable/ic_location_on"
-            android:title="View Responsibility" />
+        <group
+            android:id="@+id/menu_one"
+            android:checkableBehavior="single">
 
-    </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/profile"
-                android:icon="@drawable/ic_face_black_24dp"
-                android:title="Profile" />
             <item
                 android:id="@+id/addgaurdians"
-                android:icon="@drawable/ic_local_phone_black_24dp"
+                android:icon="@drawable/add_nav"
                 android:title="Add Gaurdians" />
+
+
+            <item
+                android:id="@+id/viewgardians"
+                android:icon="@drawable/view"
+                android:title="Gaurdians" />
+
+            <item
+                android:id="@+id/viewresponsibilities"
+                android:icon="@drawable/view"
+                android:title="Responsibilities" />
+        </group>
+
+        <group
+            android:id="@+id/menu_two"
+            android:checkableBehavior="single">
+
+
             <item
                 android:id="@+id/changepin"
-                android:icon="@drawable/ic_local_phone_black_24dp"
+                android:icon="@drawable/pin_nav"
                 android:title="Change Pin" />
-            <item
-                android:id="@+id/shareapp"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-        </menu>
-    </item>
 
+            <item
+                android:id="@+id/emergency"
+                android:icon="@drawable/ic_emergency"
+                android:title="Emergency Contacts" />
+
+        </group>
+
+        <item
+            android:id="@+id/profile"
+            android:icon="@drawable/profile_view"
+            android:title="Profile" />
+        <item
+            android:id="@+id/shareapp"
+            android:icon="@drawable/share_nav"
+            android:title="Share" />
+    </group>
 </menu>
